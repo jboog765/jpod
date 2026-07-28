@@ -222,14 +222,14 @@
   }
   .coverflow-track{
     position:relative;
-    height:clamp(160px, 30vh, 260px);
-    perspective:700px;
+    height:clamp(190px, 42vh, 330px);
+    perspective:800px;
   }
   .cf-cover{
     position:absolute;
     top:12%;left:50%;
-    width:clamp(110px, 30vw, 170px);
-    height:clamp(110px, 30vw, 170px);
+    width:clamp(120px, 40vw, 210px);
+    height:clamp(120px, 40vw, 210px);
     object-fit:cover;
     border-radius:3px;
     background:#ccc;
@@ -256,33 +256,39 @@
   .np-icon{color:#999;font-size:14px;}
   .np-body{
     display:flex;
-    gap:14px;
-    padding:18px 16px 6px;
+    gap:16px;
+    padding:20px 18px 6px;
     align-items:flex-start;
+    flex:1 1 auto;
+    min-height:0;
   }
   #view-now{ display:none; }
   #view-now.active{ display:flex; flex-direction:column; }
   .cover{
-    width:clamp(110px, 32vw, 190px);
-    height:clamp(110px, 32vw, 190px);
+    width:clamp(120px, 42vw, 250px);
+    height:clamp(120px, 42vw, 250px);
     border-radius:3px;background:#ccc;
     object-fit:cover;
     box-shadow:0 6px 12px rgba(0,0,0,.25);
     flex-shrink:0;
   }
   .np-text{padding-top:2px;overflow:hidden;}
-  .np-title{font-weight:700;font-size:15px;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .np-artist{font-size:12px;color:#444;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .np-album{font-size:12px;color:#888;margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .np-count{font-size:11px;color:#aaa;margin-top:10px;}
+  .np-title{
+    font-weight:700;font-size:clamp(15px,4.4vw,21px);line-height:1.25;color:#111;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .np-artist{font-size:clamp(12px,3.6vw,17px);color:#333;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-album{font-size:clamp(12px,3.4vw,16px);color:#888;margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-count{font-size:clamp(11px,3vw,14px);color:#aaa;margin-top:14px;}
   .np-scrub-row{
-    display:flex;align-items:center;gap:8px;
+    display:flex;align-items:center;gap:10px;
     touch-action:none;
     margin-top:auto;
-    padding:10px 14px 0;
+    padding:10px 16px 14px;
     margin-top:auto;
   }
-  .np-time{font-size:10px;color:#999;width:32px;flex-shrink:0;}
+  .np-time{font-size:clamp(10px,2.9vw,13px);color:#999;width:40px;flex-shrink:0;}
   .np-time#np-time-remaining{text-align:right;}
   .storage-panel{
     margin:4px 10px 0;
@@ -532,6 +538,47 @@
   .np-chev{ font-size:10px; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .now-playing-row span:first-child{ font-weight:600; }
   .cover{ cursor:pointer; }
+
+  /* ---- iPod Classic split menu ---- */
+  .menu-split{ display:flex; flex:1; min-height:0; }
+  .menu-col{ flex:1 1 56%; min-width:0; border-right:1px solid #d8d8d8; }
+  .menu-art{
+    flex:0 0 44%;
+    background:linear-gradient(180deg,#f2f2f0,#dfdfdd);
+    display:flex; align-items:center; justify-content:center;
+    padding:10px; overflow:hidden;
+  }
+  .menu-art img{
+    width:100%; aspect-ratio:1/1; object-fit:cover;
+    box-shadow:0 4px 10px rgba(0,0,0,.35);
+    border-radius:2px;
+  }
+  .menu-art-empty{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; aspect-ratio:1/1;
+    background:linear-gradient(150deg,#cfcfcd,#a9a9a7);
+    color:#fff; font-weight:800; letter-spacing:2px; font-size:15px;
+    box-shadow:inset 0 1px 2px rgba(255,255,255,.6);
+    border-radius:2px;
+  }
+  body.dark-ui .menu-col{ border-right-color:#2a2a2e; }
+  body.dark-ui .menu-art{ background:linear-gradient(180deg,#1a1a1d,#141416); }
+
+  /* Apple's blue gradient selection bar */
+  .menu-item.selected, .list-item.selected{
+    background:linear-gradient(180deg,#5aa7ec 0%,#2f7fd4 50%,#1f6cc0 51%,#3f8fdc 100%);
+    color:#fff;
+    text-shadow:0 -1px 0 rgba(0,0,0,.25);
+  }
+  .menu-item.selected .chev{ color:#fff; }
+
+  /* ---- Cover Flow: bigger art with reflections ---- */
+  .cf-cover{
+    -webkit-box-reflect:below 2px linear-gradient(transparent 55%, rgba(255,255,255,.25));
+  }
+  .coverflow{ justify-content:flex-start; padding-top:10px; }
+  .coverflow-title{ font-size:clamp(13px,3.8vw,17px); margin-top:6px; }
+  .coverflow-artist{ font-size:clamp(11px,3.2vw,14px); }
   .np-status{
     font-size:9px;
     color:#c0392b;
@@ -633,7 +680,13 @@
 
       <!-- MENU VIEW (home) -->
       <div class="view active" id="view-menu">
-        <div class="list" id="menu-list"></div>
+        <div class="menu-split">
+          <div class="list menu-col" id="menu-list"></div>
+          <div class="menu-art" id="menu-art">
+            <img id="menu-art-img" src="" alt="">
+            <div class="menu-art-empty" id="menu-art-empty">JPOD</div>
+          </div>
+        </div>
       </div>
 
       <!-- SONGS VIEW -->
@@ -893,20 +946,41 @@ const trackList = document.getElementById('track-list');
 const menuListEl = document.getElementById('menu-list');
 
 // ---- Menu (home) definition ----
-const MENU_ITEMS = [
+// Menu structure mirrors the iPod Classic: a short root, with the library
+// tucked under "Music" exactly as Apple had it.
+const MENU_MUSIC = [
   { label: 'Playlists', action: () => openBrowse('playlists') },
   { label: 'Artists', action: () => openBrowse('artists') },
   { label: 'Albums', action: () => { showView('albums'); render(); } },
   { label: 'Songs', action: () => { showView('songs'); render(); } },
   { label: 'Genres', action: () => openBrowse('genres') },
+  { label: 'Composers', action: () => openBrowse('composers') },
+];
+
+const MENU_ROOT = [
+  { label: 'Music', action: () => enterMenu('music') },
   { label: 'Extras', action: () => openExtras() },
   { label: 'Settings', action: () => showView('settings') },
+  { label: 'Shuffle Songs', action: () => shuffleAndPlay() },
 ];
+
+let menuLevel = 'root';           // 'root' | 'music'
+const menuMemory = { root: 0, music: 0 };
+
+function enterMenu(level){
+  menuLevel = level;
+  selectedMenuIndex = menuMemory[level] || 0;
+  renderMenu();
+}
+
+function baseMenuItems(){
+  return menuLevel === 'music' ? MENU_MUSIC : MENU_ROOT;
+}
 
 // The real iPod appended a "Now Playing" row whenever a track was loaded
 function currentMenuItems(){
-  const items = MENU_ITEMS.slice();
-  if (currentIndex >= 0 && library[currentIndex]) {
+  const items = baseMenuItems().slice();
+  if (menuLevel === 'root' && currentIndex >= 0 && library[currentIndex]) {
     items.push({
       label: 'Now Playing',
       nowPlaying: true,
@@ -930,10 +1004,28 @@ function renderMenu(){
   [...menuListEl.querySelectorAll('.menu-item')].forEach(el => {
     el.onclick = () => {
       selectedMenuIndex = parseInt(el.dataset.idx);
+      menuMemory[menuLevel] = selectedMenuIndex;
       renderMenu();
       currentMenuItems()[selectedMenuIndex].action();
     };
   });
+  updateMenuArt();
+}
+
+// The artwork panel beside the menu — shows what's playing, else newest album art
+function updateMenuArt(){
+  const img = document.getElementById('menu-art-img');
+  const empty = document.getElementById('menu-art-empty');
+  if (!img) return;
+  let art = null;
+  if (currentIndex >= 0 && library[currentIndex] && library[currentIndex].cover) {
+    art = library[currentIndex].cover;
+  } else {
+    const withArt = library.filter(t => t.cover);
+    if (withArt.length) art = withArt[withArt.length - 1].cover;
+  }
+  if (art) { img.src = art; img.style.display = 'block'; empty.style.display = 'none'; }
+  else { img.removeAttribute('src'); img.style.display = 'none'; empty.style.display = 'flex'; }
 }
 
 function shuffleAndPlay(){
@@ -1020,7 +1112,11 @@ function btnClick(fn){
   return () => { playClick(); fn(); };
 }
 
-document.getElementById('btn-menu').onclick = btnClick(() => showView('menu'));
+document.getElementById('btn-menu').onclick = btnClick(() => {
+  if (currentView === 'menu' && menuLevel !== 'root') { enterMenu('root'); return; }
+  if (currentView === 'menu') return;
+  showView('menu');
+});
 document.getElementById('btn-import').onclick = btnClick(() => document.getElementById('file-input').click());
 document.getElementById('btn-spotify').onclick = btnClick(() => alert('Spotify connect would go here — OAuth + Web Playback SDK, merged into this same library.'));
 
@@ -1033,6 +1129,8 @@ document.getElementById('file-input').onchange = (e) => {
 };
 
 document.getElementById('btn-play').onclick = btnClick(() => {
+  // On Now Playing it's always play/pause; elsewhere it starts the selected track
+  if (currentView === 'now' || currentIndex >= 0) { togglePlay(); return; }
   if ((currentView === 'songs' || currentView === 'albumtracks') && selectedIndex !== -1) {
     playIndex(selectedIndex);
   } else {
@@ -1051,11 +1149,11 @@ document.getElementById('btn-center').onclick = btnClick(() => {
     if (g) openTrackList(g.name, g.indices, 'browse', g.playlistId);
   }
   else if (currentView === 'songs' || currentView === 'albumtracks') { playIndex(selectedIndex); }
-  else if (currentView === 'now') { togglePlay(); }
+  // Now Playing: the centre button is inert, play/pause handles playback
 });
 
 [...document.querySelectorAll('[data-back]')].forEach(btn => {
-  btn.onclick = btnClick(() => showView('menu'));
+  btn.onclick = btnClick(() => { showView('menu'); renderMenu(); });
 });
 document.getElementById('tracklist-back').onclick = btnClick(() => {
   const back = listContext && listContext.backTo ? listContext.backTo : 'menu';
@@ -1282,14 +1380,15 @@ cfEl.addEventListener('touchstart', cfStart, { passive: false });
 cfEl.addEventListener('touchmove', cfMove, { passive: false });
 window.addEventListener('touchend', cfEnd);
 
-const VIEW_LABELS = { menu: 'Menu', songs: 'Songs', albums: 'Albums', browse: 'Browse', albumtracks: 'List', extras: 'Extras', brick: 'Brick', quiz: 'Music Quiz', settings: 'Settings', now: 'Now Playing' };
+const VIEW_LABELS = { menu: 'JPOD', songs: 'Songs', albums: 'Albums', browse: 'Browse', albumtracks: 'List', extras: 'Extras', brick: 'Brick', quiz: 'Music Quiz', settings: 'Settings', now: 'Now Playing' };
 
 function showView(name){
   currentView = name;
   ['menu', 'songs', 'albums', 'browse', 'albumtracks', 'extras', 'brick', 'quiz', 'settings', 'now'].forEach(v => {
     document.getElementById('view-' + v).classList.toggle('active', v === name);
   });
-  document.getElementById('statusbar-label').textContent = VIEW_LABELS[name];
+  document.getElementById('statusbar-label').textContent =
+    (name === 'menu' && menuLevel === 'music') ? 'Music' : VIEW_LABELS[name];
   if (name !== 'now') document.getElementById('cover-full').classList.remove('shown');
   if (name !== 'brick') stopBrick();
   if (name !== 'quiz' && quiz && quiz.active) quizStop();
@@ -1474,7 +1573,7 @@ function renderCoverflow(){
     const abs = Math.abs(offset);
     // spacing scales with the actual cover size so it works at any screen size
     const cw = document.getElementById('coverflow-track').clientWidth || 300;
-    const unit = Math.max(60, Math.min(120, cw * 0.26));
+    const unit = Math.max(70, Math.min(150, cw * 0.30));
     const scale = offset === 0 ? 1 : (abs === 1 ? 0.72 : 0.55);
     const spacing = offset === 0 ? 0 : (abs === 1 ? unit : unit * 1.5);
     const rotate = offset === 0 ? 0 : (offset < 0 ? 42 : -42);
@@ -1882,12 +1981,15 @@ function groupBy(getKey, fallback){
 
 function getArtists(){ return groupBy(t => t.albumArtist || t.artist, 'Unknown Artist'); }
 function getGenres(){ return groupBy(t => t.genre, 'Unclassified'); }
+function getComposers(){ return groupBy(t => t.composer, 'Unknown Composer'); }
 
 function openBrowse(mode){
   browseMode = mode;
   browseSelected = 0;
   document.getElementById('browse-title').textContent =
-    mode === 'artists' ? 'Artists' : mode === 'genres' ? 'Genres' : 'Playlists';
+    mode === 'artists' ? 'Artists' :
+    mode === 'genres' ? 'Genres' :
+    mode === 'composers' ? 'Composers' : 'Playlists';
   document.getElementById('btn-new-playlist').style.visibility =
     mode === 'playlists' ? 'visible' : 'hidden';
   showView('browse');
@@ -1897,6 +1999,7 @@ function openBrowse(mode){
 function currentBrowseGroups(){
   if (browseMode === 'artists') return getArtists();
   if (browseMode === 'genres') return getGenres();
+  if (browseMode === 'composers') return getComposers();
   return playlists.map(p => ({
     key: p.id,
     name: p.name,
