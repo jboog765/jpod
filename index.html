@@ -252,7 +252,7 @@
     padding:6px 10px;
     border-bottom:1px solid #e5e5e5;
   }
-  .np-header .np-quote{flex:1;text-align:left;color:#999;font-size:15px;margin-left:2px;}
+  .np-header .np-spacer{flex:1;}
   .np-icon{color:#999;font-size:14px;}
   .np-body{
     display:flex;
@@ -579,6 +579,44 @@
   .coverflow{ justify-content:flex-start; padding-top:10px; }
   .coverflow-title{ font-size:clamp(13px,3.8vw,17px); margin-top:6px; }
   .coverflow-artist{ font-size:clamp(11px,3.2vw,14px); }
+  #rhythm-canvas{
+    display:block; margin:4px auto 0; max-width:100%; height:auto;
+  }
+  .rhythm-hud{
+    display:flex; justify-content:space-between;
+    padding:2px 16px; font-size:12px; font-weight:700; min-height:16px;
+  }
+  #rhythm-combo{ color:#2f7fd4; }
+  #rhythm-judge{ color:#666; }
+  .rhythm-picker{
+    padding:0 12px 10px; display:flex; flex-direction:column; gap:6px;
+    overflow-y:auto; max-height:38%;
+  }
+  .rhythm-pick{
+    background:#fff;border:1px solid #c8c8c8;border-radius:5px;
+    padding:7px 9px;font-size:12px;text-align:left;cursor:pointer;font-family:inherit;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  body.dark-ui .rhythm-pick{ background:#1d1d21;border-color:#35353b;color:#e6e6e8; }
+  body.dark-ui #rhythm-judge{ color:#9a9aa0; }
+  .search-bar{ padding:8px 10px; border-bottom:1px solid #e0e0e0; }
+  #search-input{
+    width:100%; box-sizing:border-box;
+    border:1px solid #b9b9b9; border-radius:16px;
+    padding:7px 12px; font-size:13px; font-family:inherit;
+    background:#fff;
+  }
+  body.dark-ui .search-bar{ border-bottom-color:#2a2a2e; }
+  body.dark-ui #search-input{ background:#1d1d21; border-color:#35353b; color:#e6e6e8; }
+  .import-progress{
+    margin:4px 10px 0; font-size:11px; color:#2f7fd4; font-weight:600; min-height:14px;
+  }
+  .pl-actions{ display:flex; gap:2px; flex-shrink:0; }
+  .pl-btn{
+    background:none; border:none; color:#9aa0a6; font-size:14px;
+    padding:2px 5px; cursor:pointer;
+  }
+  .list-item.selected .pl-btn{ color:#fff; }
   .np-status{
     font-size:9px;
     color:#c0392b;
@@ -745,6 +783,35 @@
         <div class="list" id="extras-list"></div>
       </div>
 
+      <!-- SEARCH -->
+      <div class="view" id="view-search">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span>Search</span>
+          <span id="search-count"></span>
+        </div>
+        <div class="search-bar">
+          <input type="search" id="search-input" placeholder="Title, artist or album" autocomplete="off">
+        </div>
+        <div class="list" id="search-results"></div>
+      </div>
+
+      <!-- RHYTHM GAME -->
+      <div class="view" id="view-rhythm">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span id="rhythm-title">Rhythm</span>
+          <span id="rhythm-score">0</span>
+        </div>
+        <canvas id="rhythm-canvas" width="320" height="300"></canvas>
+        <div class="rhythm-hud">
+          <span id="rhythm-combo"></span>
+          <span id="rhythm-judge"></span>
+        </div>
+        <div class="game-hint" id="rhythm-hint">Pick a track to build a beatmap</div>
+        <div class="rhythm-picker" id="rhythm-picker"></div>
+      </div>
+
       <!-- BRICK GAME -->
       <div class="view" id="view-brick">
         <div class="sub-header">
@@ -788,6 +855,7 @@
           <div class="theme-row" id="theme-row"></div>
           <label class="toggle-row"><span>Dark screen</span><input type="checkbox" id="dark-toggle"></label>
         </div>
+        <div class="import-progress" id="import-progress"></div>
         <div class="storage-panel" id="storage-panel">Checking storage…</div>
         <div class="import-row">
           <button class="import-btn secondary" id="btn-backup">Back Up</button>
@@ -804,7 +872,7 @@
       <div class="view" id="view-now">
         <div class="np-header">
           <button class="icon-btn back-btn" data-back>‹</button>
-          <span class="np-quote">”</span>
+          <span class="np-spacer"></span>
           <span></span>
           <span class="np-icon np-shuffle">⇄</span>
           <span class="np-icon np-repeat">↻</span>
@@ -955,6 +1023,7 @@ const MENU_MUSIC = [
   { label: 'Songs', action: () => { showView('songs'); render(); } },
   { label: 'Genres', action: () => openBrowse('genres') },
   { label: 'Composers', action: () => openBrowse('composers') },
+  { label: 'Search', action: () => openSearch() },
 ];
 
 const MENU_ROOT = [
@@ -1124,6 +1193,9 @@ document.getElementById('file-input').onchange = (e) => {
   const audioExt = /\.(mp3|m4a|wav|flac|aac|ogg|wma|opus)$/i;
   const files = [...e.target.files].filter(f => audioExt.test(f.name) || f.type.startsWith('audio/'));
   const skipped = e.target.files.length - files.length;
+  importTotal = files.length;
+  importDone = 0;
+  setImportProgress();
   files.forEach(importFile);
   if (skipped > 0) alert(`Skipped ${skipped} file(s) that didn't look like audio.`);
 };
@@ -1147,6 +1219,9 @@ document.getElementById('btn-center').onclick = btnClick(() => {
   else if (currentView === 'browse') {
     const g = currentBrowseGroups()[browseSelected];
     if (g) openTrackList(g.name, g.indices, 'browse', g.playlistId);
+  }
+  else if (currentView === 'search') {
+    if (searchMatches.length) { selectedIndex = searchMatches[searchSelected]; setQueue(searchMatches); playIndex(selectedIndex); }
   }
   else if (currentView === 'songs' || currentView === 'albumtracks') { playIndex(selectedIndex); }
   // Now Playing: the centre button is inert, play/pause handles playback
@@ -1231,6 +1306,15 @@ function wheelMove(e){
     if (currentView === 'menu') {
       selectedMenuIndex = Math.max(0, Math.min(currentMenuItems().length - 1, selectedMenuIndex + dir));
       renderMenu();
+    } else if (currentView === 'search') {
+      if (searchMatches.length) {
+        searchSelected = Math.max(0, Math.min(searchMatches.length - 1, searchSelected + dir));
+        runSearch(document.getElementById('search-input').value);
+        const el = document.querySelector('#search-results .list-item.selected');
+        if (el) el.scrollIntoView({ block: 'nearest' });
+      }
+    } else if (currentView === 'rhythm') {
+      rhythmMoveCursor(dir);
     } else if (currentView === 'brick') {
       brickMovePaddle(dir);
     } else if (currentView === 'extras') {
@@ -1380,17 +1464,18 @@ cfEl.addEventListener('touchstart', cfStart, { passive: false });
 cfEl.addEventListener('touchmove', cfMove, { passive: false });
 window.addEventListener('touchend', cfEnd);
 
-const VIEW_LABELS = { menu: 'JPOD', songs: 'Songs', albums: 'Albums', browse: 'Browse', albumtracks: 'List', extras: 'Extras', brick: 'Brick', quiz: 'Music Quiz', settings: 'Settings', now: 'Now Playing' };
+const VIEW_LABELS = { menu: 'JPOD', rhythm: 'Rhythm', search: 'Search', songs: 'Songs', albums: 'Albums', browse: 'Browse', albumtracks: 'List', extras: 'Extras', brick: 'Brick', quiz: 'Music Quiz', settings: 'Settings', now: 'Now Playing' };
 
 function showView(name){
   currentView = name;
-  ['menu', 'songs', 'albums', 'browse', 'albumtracks', 'extras', 'brick', 'quiz', 'settings', 'now'].forEach(v => {
+  ['menu', 'songs', 'albums', 'browse', 'albumtracks', 'extras', 'brick', 'rhythm', 'quiz', 'search', 'settings', 'now'].forEach(v => {
     document.getElementById('view-' + v).classList.toggle('active', v === name);
   });
   document.getElementById('statusbar-label').textContent =
     (name === 'menu' && menuLevel === 'music') ? 'Music' : VIEW_LABELS[name];
   if (name !== 'now') document.getElementById('cover-full').classList.remove('shown');
   if (name !== 'brick') stopBrick();
+  if (name !== 'rhythm') stopRhythm();
   if (name !== 'quiz' && quiz && quiz.active) quizStop();
   if (name === 'menu') renderMenu();
   if (name === 'extras') renderExtras();
@@ -1455,6 +1540,7 @@ function importFile(file){
           let binary = '';
           for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
           track.cover = `data:${format};base64,${btoa(binary)}`;
+          makeThumb(track.cover).then(th => { if (th) { track.thumb = th; render(); } });
         }
         render();
         if (currentIndex === idx) updateNowPlaying();
@@ -1468,7 +1554,8 @@ function importFile(file){
   Promise.all([bufferPromise, tagsPromise])
     .then(() => applyPendingMetaTo(track))
     .then(restored => { if (restored) { render(); if (currentIndex === idx) updateNowPlaying(); } })
-    .then(() => saveTrackToStorage(track));
+    .then(() => saveTrackToStorage(track))
+    .then(() => { importDone++; setImportProgress(); sortLibrary(); render(); });
 }
 
 let selectedAlbumIndex = 0;
@@ -1489,7 +1576,7 @@ function getAlbums(){
     const artist = (t.albumArtist || t.artist || 'Unknown Artist').trim();
     const key = album.toLowerCase() + '|||' + artist.toLowerCase();
     if (!map.has(key)) {
-      map.set(key, { key, album, artist, cover: t.cover || null, indices: [] });
+      map.set(key, { key, album, artist, cover: t.cover || null, thumb: t.thumb || null, indices: [] });
     }
     const entry = map.get(key);
     entry.indices.push(i);
@@ -1507,7 +1594,20 @@ function getAlbums(){
       return (library[a].title || '').localeCompare(library[b].title || '');
     });
   }
-  return [...map.values()];
+  return [...map.values()].sort((a, b) => a.album.localeCompare(b.album, undefined, { sensitivity: 'base' }));
+}
+
+// Keep the library in a predictable order rather than storage order
+function sortLibrary(){
+  const playing = currentIndex >= 0 ? library[currentIndex] : null;
+  const sel = selectedIndex >= 0 ? library[selectedIndex] : null;
+  library.sort((a, b) => {
+    const t = (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
+    if (t !== 0) return t;
+    return (a.artist || '').localeCompare(b.artist || '', undefined, { sensitivity: 'base' });
+  });
+  if (playing) currentIndex = library.indexOf(playing);
+  if (sel) selectedIndex = library.indexOf(sel);
 }
 
 function render(){
@@ -1524,7 +1624,7 @@ function renderList(){
   }
   trackList.innerHTML = library.map((t, i) => `
     <div class="list-item${i === selectedIndex ? ' selected' : ''}" data-idx="${i}">
-      <img src="${t.cover || placeholderCover()}">
+      <img src="${t.thumb || t.cover || placeholderCover()}" loading="lazy">
       <div class="meta">
         <div class="title">${escapeHtml(t.title)}</div>
         <div class="sub">${escapeHtml(t.artist)}${t.album ? ' — ' + escapeHtml(t.album) : ''}</div>
@@ -1642,6 +1742,40 @@ function moveSelection(delta){
   render();
   const el = trackList.querySelector('.list-item.selected');
   if (el) el.scrollIntoView({ block: 'nearest' });
+}
+
+// Lists render dozens of rows at once, so they use a small thumbnail instead
+// of the full-size artwork — full art is only decoded on Now Playing.
+function makeThumb(dataUrl, size){
+  size = size || 72;
+  return new Promise(resolve => {
+    try {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas');
+          c.width = size; c.height = size;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, size, size);
+          resolve(c.toDataURL('image/jpeg', 0.7));
+        } catch (e) { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    } catch (e) { resolve(null); }
+  });
+}
+
+// Build any missing thumbnails in the background, without blocking the UI
+async function backfillThumbs(){
+  let changed = false;
+  for (const t of library) {
+    if (t.cover && !t.thumb) {
+      t.thumb = await makeThumb(t.cover);
+      if (t.thumb) { changed = true; await saveTrackMetaToStorage(t); }
+    }
+  }
+  if (changed) render();
 }
 
 function placeholderCover(){
@@ -2068,9 +2202,26 @@ function renderTrackList(){
         '<div class="title">' + escapeHtml(t.title) + '</div>' +
         '<div class="sub">' + escapeHtml(t.artist) + '</div>' +
       '</div>' +
+      (isPlaylistView()
+        ? '<span class="pl-actions">' +
+            '<button class="pl-btn" data-up="' + li + '" title="Move up">&#9650;</button>' +
+            '<button class="pl-btn" data-down="' + li + '" title="Move down">&#9660;</button>' +
+            '<button class="pl-btn" data-remove="' + li + '" title="Remove">&#10005;</button>' +
+          '</span>'
+        : '') +
       '<button class="info-btn" data-info="' + li + '" title="Get Info">&#9432;</button>' +
     '</div>';
   }).join('');
+
+  [...listEl.querySelectorAll('[data-up]')].forEach(b => {
+    b.onclick = (e) => { e.stopPropagation(); playClick(); movePlaylistTrack(parseInt(b.dataset.up), -1); };
+  });
+  [...listEl.querySelectorAll('[data-down]')].forEach(b => {
+    b.onclick = (e) => { e.stopPropagation(); playClick(); movePlaylistTrack(parseInt(b.dataset.down), 1); };
+  });
+  [...listEl.querySelectorAll('[data-remove]')].forEach(b => {
+    b.onclick = (e) => { e.stopPropagation(); playClick(); removeFromPlaylist(parseInt(b.dataset.remove)); };
+  });
 
   [...listEl.querySelectorAll('.list-item')].forEach(el => {
     el.onclick = (e) => {
@@ -2351,6 +2502,7 @@ async function loadPrefs(){
 // ---- Extras menu ----
 const EXTRAS_ITEMS = [
   { label: 'Brick', action: () => startBrick() },
+  { label: 'Rhythm', action: () => openRhythm() },
   { label: 'Music Quiz', action: () => openQuiz() }
 ];
 let extrasSelected = 0;
@@ -2566,9 +2718,21 @@ function metaKeyFor(nameOrTrack){
 }
 
 function buildBackup(){
+  // Cover art is shared across an album, so store each image once and have the
+  // tracks reference it. A 14-track album goes from 14 copies to 1.
+  const covers = {};
+  const coverKeyFor = (t) => {
+    if (!t.cover) return null;
+    const key = ((t.album || '') + '|' + (t.albumArtist || t.artist || '')).toLowerCase() || t.id;
+    if (!covers[key]) covers[key] = t.cover;
+    return key;
+  };
+  library.forEach(coverKeyFor);
+
   return {
     format: 'jpod-backup',
-    version: 1,
+    version: 2,
+    covers,
     exported: new Date().toISOString(),
     trackCount: library.length,
     prefs: { theme: currentTheme, darkUI: darkUI },
@@ -2592,7 +2756,7 @@ function buildBackup(){
       year: t.year || '',
       trackNo: t.trackNo || '',
       comments: t.comments || '',
-      cover: t.cover || null
+      coverKey: coverKeyFor(t)
     }))
   };
 }
@@ -2649,6 +2813,8 @@ async function importBackup(file){
     await savePrefs();
   }
 
+  backupCovers = data.covers || {};
+
   // 2. metadata — apply to tracks already present, stash the rest
   let applied = 0, waiting = 0;
   pendingMeta = {};
@@ -2660,7 +2826,8 @@ async function importBackup(file){
       await saveTrackMetaToStorage(match);
       applied++;
     } else {
-      pendingMeta[key] = rec;
+      const art = resolveCover(rec);
+      pendingMeta[key] = Object.assign({}, rec, { cover: art || null });
       waiting++;
     }
   }
@@ -2689,6 +2856,14 @@ async function importBackup(file){
   updateStoragePanel();
 }
 
+let backupCovers = {};
+
+function resolveCover(rec){
+  if (rec.cover) return rec.cover;                    // v1 backups
+  if (rec.coverKey && backupCovers[rec.coverKey]) return backupCovers[rec.coverKey];
+  return null;
+}
+
 function applyMetaRecord(track, rec){
   track.title = rec.title || track.title;
   track.artist = rec.artist || track.artist;
@@ -2699,7 +2874,11 @@ function applyMetaRecord(track, rec){
   track.year = rec.year || '';
   track.trackNo = rec.trackNo || '';
   track.comments = rec.comments || '';
-  if (rec.cover) track.cover = rec.cover;
+  const art = resolveCover(rec);
+  if (art) {
+    track.cover = art;
+    makeThumb(art).then(th => { if (th) { track.thumb = th; render(); } });
+  }
 }
 
 // Called after a file is imported: if a backup was waiting for it, apply it
@@ -2731,6 +2910,346 @@ async function loadPendingMeta(){
       if (rec && rec.value) pendingMeta = JSON.parse(rec.value);
     }
   } catch (e) { pendingMeta = {}; }
+}
+
+
+// ================= Rhythm =================
+// Notes fly inward toward a ring. You spin the wheel to keep the cursor over
+// the spot each note lands on. The beatmap is generated from the actual audio:
+// we scan the decoded waveform for energy spikes (onsets) and place notes there.
+
+let rhythm = null;
+
+function openRhythm(){
+  showView('rhythm');
+  stopRhythm();
+  const picker = document.getElementById('rhythm-picker');
+  document.getElementById('rhythm-score').textContent = '0';
+  document.getElementById('rhythm-combo').textContent = '';
+  document.getElementById('rhythm-judge').textContent = '';
+
+  if (library.length === 0) {
+    document.getElementById('rhythm-hint').textContent = 'Import some music first.';
+    picker.innerHTML = '';
+    return;
+  }
+  document.getElementById('rhythm-hint').textContent = 'Pick a track to build a beatmap';
+  picker.innerHTML = library.map((t, i) =>
+    '<button class="rhythm-pick" data-i="' + i + '">' + escapeHtml(t.title) + ' — ' + escapeHtml(t.artist) + '</button>'
+  ).join('');
+  [...picker.querySelectorAll('.rhythm-pick')].forEach(b => {
+    b.onclick = () => { playClick(); startRhythm(parseInt(b.dataset.i)); };
+  });
+}
+
+// Find energy spikes in the waveform — these become the notes
+function buildBeatmap(audioBuffer){
+  const sr = audioBuffer.sampleRate;
+  const data = audioBuffer.getChannelData(0);
+  const hop = Math.floor(sr * 0.02);            // 20ms frames
+  const frames = Math.floor(data.length / hop);
+  const energy = new Float32Array(frames);
+
+  for (let f = 0; f < frames; f++) {
+    let sum = 0;
+    const start = f * hop;
+    for (let i = start; i < start + hop && i < data.length; i++) sum += data[i] * data[i];
+    energy[f] = Math.sqrt(sum / hop);
+  }
+
+  // Adaptive threshold: a note is a frame that clearly exceeds its neighbourhood
+  const notes = [];
+  const win = 20;
+  let lastTime = -1;
+  for (let f = 2; f < frames - 2; f++) {
+    let localSum = 0, n = 0;
+    for (let k = Math.max(0, f - win); k < Math.min(frames, f + win); k++) { localSum += energy[k]; n++; }
+    const local = localSum / Math.max(1, n);
+    const isPeak = energy[f] > energy[f - 1] && energy[f] >= energy[f + 1];
+    if (isPeak && energy[f] > local * 1.45 && energy[f] > 0.02) {
+      const time = (f * hop) / sr;
+      if (time - lastTime > 0.28) {              // keep notes playable
+        notes.push({ time, angle: 0, hit: false, judged: false });
+        lastTime = time;
+      }
+    }
+  }
+
+  // Assign each note one of 8 positions around the ring, avoiding big jumps
+  let slot = 0;
+  notes.forEach((nt, i) => {
+    if (i > 0) slot += (Math.random() < 0.5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2));
+    slot = ((slot % 8) + 8) % 8;
+    nt.angle = slot * 45;
+  });
+  return notes;
+}
+
+async function startRhythm(trackIndex){
+  const t = library[trackIndex];
+  if (!t) return;
+  document.getElementById('rhythm-picker').innerHTML = '';
+  document.getElementById('rhythm-hint').textContent = 'Analysing audio…';
+  document.getElementById('rhythm-title').textContent = t.title;
+
+  let buffer;
+  try {
+    ensureContext();
+    if (!t.arrayBuffer && !t.file) await ensureAudioLoaded(t);
+    buffer = await decodeTrack(t);
+  } catch (e) {
+    document.getElementById('rhythm-hint').textContent = 'Could not analyse this track.';
+    return;
+  }
+
+  const notes = buildBeatmap(buffer);
+  if (!notes.length) {
+    document.getElementById('rhythm-hint').textContent = 'No clear beat found in this track.';
+    return;
+  }
+
+  const canvas = document.getElementById('rhythm-canvas');
+  rhythm = {
+    canvas, ctx: canvas.getContext('2d'),
+    notes, next: 0, cursor: 0,
+    score: 0, combo: 0, best: 0, hits: 0, total: notes.length,
+    lead: 1.8,                 // seconds a note takes to reach the ring
+    raf: null, trackIndex, running: true
+  };
+
+  document.getElementById('rhythm-hint').textContent = 'Spin the wheel to catch the notes';
+  await playIndex(trackIndex, { keepView: true });
+  rhythmLoop();
+}
+
+function stopRhythm(){
+  if (rhythm) {
+    if (rhythm.raf) cancelAnimationFrame(rhythm.raf);
+    rhythm.running = false;
+    rhythm = null;
+    if (isPlaying) togglePlay();
+  }
+}
+
+function rhythmMoveCursor(delta){
+  if (!rhythm) return;
+  rhythm.cursor = (rhythm.cursor + delta * 9) % 360;
+  if (rhythm.cursor < 0) rhythm.cursor += 360;
+}
+
+function angleDelta(a, b){
+  let d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+function rhythmJudge(note){
+  const diff = angleDelta(rhythm.cursor, note.angle);
+  let label, points;
+  if (diff < 14) { label = 'PERFECT'; points = 100; }
+  else if (diff < 30) { label = 'GOOD'; points = 50; }
+  else { label = 'MISS'; points = 0; }
+
+  note.judged = true;
+  if (points) {
+    rhythm.score += points + rhythm.combo * 2;
+    rhythm.combo++;
+    rhythm.hits++;
+    rhythm.best = Math.max(rhythm.best, rhythm.combo);
+    playTone(label === 'PERFECT' ? 880 : 620, 0.07, 'triangle', 0.12);
+  } else {
+    rhythm.combo = 0;
+    playTone(150, 0.09, 'sawtooth', 0.08);
+  }
+  document.getElementById('rhythm-score').textContent = rhythm.score;
+  document.getElementById('rhythm-combo').textContent = rhythm.combo > 2 ? rhythm.combo + 'x' : '';
+  document.getElementById('rhythm-judge').textContent = label;
+}
+
+function rhythmLoop(){
+  if (!rhythm || !rhythm.running) return;
+  const { ctx, canvas, notes } = rhythm;
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const ringR = Math.min(W, H) * 0.34;
+  const now = currentPosition();
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ring
+  ctx.strokeStyle = darkUI ? '#3a3a40' : '#c9c9c9';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2); ctx.stroke();
+
+  // cursor arc
+  const cur = (rhythm.cursor - 90) * Math.PI / 180;
+  ctx.strokeStyle = '#2f7fd4';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.arc(cx, cy, ringR, cur - 0.26, cur + 0.26);
+  ctx.stroke();
+
+  // notes
+  notes.forEach(nt => {
+    if (nt.judged) return;
+    const dt = nt.time - now;
+    if (dt > rhythm.lead) return;
+    if (dt < -0.12) { rhythmJudge(nt); return; }   // arrival window passed
+    const prog = 1 - (dt / rhythm.lead);            // 0 far, 1 at ring
+    const r = ringR * (2.1 - 1.1 * prog);
+    const a = (nt.angle - 90) * Math.PI / 180;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    const size = 5 + prog * 5;
+    ctx.fillStyle = angleDelta(rhythm.cursor, nt.angle) < 30 ? '#2f7fd4' : (darkUI ? '#8a8a90' : '#888');
+    ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // finished?
+  const done = notes.every(n => n.judged);
+  if (done || (currentDuration() && now >= currentDuration() - 0.2)) {
+    const acc = Math.round((rhythm.hits / rhythm.total) * 100);
+    document.getElementById('rhythm-hint').textContent =
+      'Finished — ' + rhythm.score + ' pts · ' + acc + '% · best combo ' + rhythm.best;
+    rhythm.running = false;
+    if (isPlaying) togglePlay();
+    return;
+  }
+
+  rhythm.raf = requestAnimationFrame(rhythmLoop);
+}
+
+
+// ================= Search =================
+let searchSelected = 0;
+let searchMatches = [];
+
+function openSearch(){
+  showView('search');
+  searchSelected = 0;
+  const input = document.getElementById('search-input');
+  input.value = '';
+  runSearch('');
+  setTimeout(() => input.focus(), 60);
+}
+
+function runSearch(q){
+  const term = (q || '').trim().toLowerCase();
+  const resultsEl = document.getElementById('search-results');
+  const countEl = document.getElementById('search-count');
+
+  if (!term) {
+    searchMatches = [];
+    resultsEl.innerHTML = '<div class="empty-msg">Type to search your library.</div>';
+    countEl.textContent = '';
+    return;
+  }
+
+  searchMatches = library
+    .map((t, i) => ({ t, i }))
+    .filter(({ t }) =>
+      (t.title || '').toLowerCase().includes(term) ||
+      (t.artist || '').toLowerCase().includes(term) ||
+      (t.album || '').toLowerCase().includes(term) ||
+      (t.genre || '').toLowerCase().includes(term))
+    .map(({ i }) => i);
+
+  countEl.textContent = searchMatches.length || '';
+
+  if (!searchMatches.length) {
+    resultsEl.innerHTML = '<div class="empty-msg">No matches.</div>';
+    return;
+  }
+  if (searchSelected >= searchMatches.length) searchSelected = 0;
+
+  resultsEl.innerHTML = searchMatches.map((li, n) => {
+    const t = library[li];
+    return '<div class="list-item' + (n === searchSelected ? ' selected' : '') + '" data-idx="' + li + '" data-n="' + n + '">' +
+      '<img src="' + (t.thumb || t.cover || placeholderCover()) + '" loading="lazy">' +
+      '<div class="meta">' +
+        '<div class="title">' + escapeHtml(t.title) + '</div>' +
+        '<div class="sub">' + escapeHtml(t.artist) + (t.album ? ' — ' + escapeHtml(t.album) : '') + '</div>' +
+      '</div>' +
+      '<button class="info-btn" data-info="' + li + '">&#9432;</button>' +
+    '</div>';
+  }).join('');
+
+  [...resultsEl.querySelectorAll('.list-item')].forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest('.info-btn')) return;
+      searchSelected = parseInt(el.dataset.n);
+      selectedIndex = parseInt(el.dataset.idx);
+      setQueue(searchMatches);
+      playIndex(selectedIndex);
+    };
+  });
+  [...resultsEl.querySelectorAll('.info-btn')].forEach(el => {
+    el.onclick = (e) => { e.stopPropagation(); playClick(); openInfoEditor(parseInt(el.dataset.info)); };
+  });
+}
+
+// ================= Import progress =================
+let importTotal = 0;
+let importDone = 0;
+
+function setImportProgress(){
+  const el = document.getElementById('import-progress');
+  if (!el) return;
+  if (importTotal === 0) { el.textContent = ''; return; }
+  if (importDone >= importTotal) {
+    el.textContent = 'Imported ' + importTotal + ' track' + (importTotal === 1 ? '' : 's') + '.';
+    setTimeout(() => {
+      if (importDone >= importTotal) { importTotal = 0; importDone = 0; el.textContent = ''; }
+    }, 4000);
+  } else {
+    el.textContent = 'Importing ' + (importDone + 1) + ' of ' + importTotal + '…';
+  }
+}
+
+// ================= Playlist management =================
+function isPlaylistView(){
+  return !!(listContext && listContext.playlistId);
+}
+
+async function removeFromPlaylist(trackIndex){
+  if (!isPlaylistView()) return;
+  const p = playlists.find(x => x.id === listContext.playlistId);
+  const t = library[trackIndex];
+  if (!p || !t) return;
+  p.trackIds = p.trackIds.filter(id => id !== t.id);
+  await savePlaylists();
+  listContext.indices = listContext.indices.filter(i => i !== trackIndex);
+  render();
+}
+
+async function movePlaylistTrack(trackIndex, dir){
+  if (!isPlaylistView()) return;
+  const p = playlists.find(x => x.id === listContext.playlistId);
+  const t = library[trackIndex];
+  if (!p || !t) return;
+  const pos = p.trackIds.indexOf(t.id);
+  const next = pos + dir;
+  if (pos < 0 || next < 0 || next >= p.trackIds.length) return;
+  const tmp = p.trackIds[pos];
+  p.trackIds[pos] = p.trackIds[next];
+  p.trackIds[next] = tmp;
+  await savePlaylists();
+  // rebuild the visible order from the playlist
+  listContext.indices = p.trackIds
+    .map(id => library.findIndex(x => x.id === id))
+    .filter(i => i >= 0);
+  selectedIndex = trackIndex;
+  render();
+}
+
+async function deletePlaylist(){
+  if (!isPlaylistView()) return;
+  const p = playlists.find(x => x.id === listContext.playlistId);
+  if (!p) return;
+  if (!confirm('Delete the playlist "' + p.name + '"? Your songs stay in the library.')) return;
+  playlists = playlists.filter(x => x.id !== p.id);
+  await savePlaylists();
+  showView('browse');
+  renderBrowse();
 }
 
 // ---- iTunes-style metadata editor ----
@@ -2853,6 +3372,7 @@ async function saveTrackMetaToStorage(track){
         mimeType: track.mimeType || 'audio/mpeg',
         fileName: track.fileName || '',
         fileSize: track.fileSize || 0,
+        thumb: track.thumb || null,
         title: track.title, artist: track.artist, album: track.album,
         albumArtist: track.albumArtist, composer: track.composer, genre: track.genre,
         year: track.year, trackNo: track.trackNo, comments: track.comments, cover: track.cover
@@ -3098,6 +3618,7 @@ async function saveTrackToStorage(track){
         mimeType: track.mimeType || 'audio/mpeg',
         fileName: track.fileName || '',
         fileSize: track.fileSize || 0,
+        thumb: track.thumb || null,
         title: track.title,
         artist: track.artist,
         album: track.album,
@@ -3166,6 +3687,7 @@ async function loadLibraryFromStorage(){
           mimeType: r.mimeType || 'audio/mpeg',
           fileName: r.fileName || '',
           fileSize: r.fileSize || 0,
+          thumb: r.thumb || null,
           arrayBuffer: null, audioBuffer: null, storedAudio: true,
           title: r.title, artist: r.artist, album: r.album,
           albumArtist: r.albumArtist || '', composer: r.composer || '',
@@ -3198,6 +3720,7 @@ async function loadLibraryFromStorage(){
         } catch (e) { console.warn('Skipping track', id, e); }
       }
     }
+    sortLibrary();
     render();
   } catch (e) {
     storageNote = 'Could not read saved library: ' + (e.message || e);
@@ -3247,6 +3770,7 @@ document.getElementById('dark-toggle').onchange = (e) => {
 document.getElementById('btn-quiz-start').onclick = btnClick(() => quizNextRound());
 
 document.getElementById('btn-shuffle-songs').onclick = btnClick(() => shuffleAndPlay());
+document.getElementById('search-input').oninput = (e) => { searchSelected = 0; runSearch(e.target.value); };
 
 // Tap the artwork on Now Playing to view it full-screen
 document.getElementById('np-cover').onclick = () => {
