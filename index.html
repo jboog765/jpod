@@ -936,6 +936,51 @@ function playClick(){
   src.start();
 }
 
+// Simple synthesized tone for game SFX
+function playTone(freq, dur, type, vol){
+  try {
+    const ctx = ensureContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'square';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(vol || 0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (dur || 0.08));
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + (dur || 0.08) + 0.02);
+  } catch (e) { /* audio not ready */ }
+}
+
+// Short downward sweep, used for losing a life / game over
+function playSweep(from, to, dur, type){
+  try {
+    const ctx = ensureContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sawtooth';
+    osc.frequency.setValueAtTime(from, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(30, to), ctx.currentTime + dur);
+    gain.gain.setValueAtTime(0.14, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + dur + 0.02);
+  } catch (e) {}
+}
+
+const SFX = {
+  wall:   () => playTone(220, 0.05, 'square', 0.07),
+  paddle: () => playTone(330, 0.07, 'square', 0.12),
+  brick:  (row) => playTone(520 + (3 - row) * 90, 0.07, 'square', 0.13),
+  launch: () => playTone(660, 0.09, 'triangle', 0.12),
+  lose:   () => playSweep(400, 80, 0.4, 'sawtooth'),
+  over:   () => { playSweep(300, 60, 0.7, 'sawtooth'); setTimeout(() => playTone(110, 0.3, 'square', 0.1), 250); },
+  win:    () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.13, 'triangle', 0.14), i * 110)); },
+  right:  () => { [523, 784].forEach((f, i) => setTimeout(() => playTone(f, 0.14, 'triangle', 0.14), i * 120)); },
+  wrong:  () => playSweep(300, 110, 0.35, 'sawtooth')
+};
+
 function btnClick(fn){
   return () => { playClick(); fn(); };
 }
@@ -1525,6 +1570,27 @@ function currentPosition(){
   return Math.min(currentDuration(), playOffset + (actx.currentTime - playStartedAt));
 }
 
+// Pull audio out of storage only when a track is actually played, and let go
+// of the previous track's bytes so a big library can't exhaust memory.
+async function ensureAudioLoaded(t){
+  if (t.arrayBuffer || t.file) return true;
+  if (!t.storedAudio || backend !== 'idb' || !idb) return false;
+  try {
+    const rec = await idbGetOne(t.id, DB_AUDIO);
+    if (rec && rec.audio) { t.arrayBuffer = rec.audio; return true; }
+  } catch (e) { console.warn('Could not load audio for', t.title, e); }
+  return false;
+}
+
+function releaseAudio(except){
+  library.forEach(t => {
+    if (t === except) return;
+    if (t.storedAudio && t.arrayBuffer) t.arrayBuffer = null; // re-fetchable
+    if (t.audioBuffer) t.audioBuffer = null;
+    if (t.blobUrl) { try { URL.revokeObjectURL(t.blobUrl); } catch (e) {} t.blobUrl = null; }
+  });
+}
+
 function trackBlobUrl(t){
   if (t.blobUrl) return t.blobUrl;
   try {
@@ -1539,6 +1605,7 @@ function trackBlobUrl(t){
 async function decodeTrack(t){
   if (t.audioBuffer) return t.audioBuffer;
   if (!t.arrayBuffer && t.readyPromise) await t.readyPromise;
+  if (!t.arrayBuffer) await ensureAudioLoaded(t);
   if (!t.arrayBuffer) throw new Error('No audio data available for this track.');
   const ctx = ensureContext();
   const copy = t.arrayBuffer.slice(0);
@@ -1632,17 +1699,26 @@ function setupMediaSessionHandlers(){
   set('seekto', (d) => { if (d && typeof d.seekTime === 'number') seekTo(d.seekTime); });
 }
 
-async function playIndex(i){
+async function playIndex(i, opts){
   if (i < 0 || i >= library.length) return;
+  opts = opts || {};
   currentIndex = i;
   selectedIndex = i;
   const t = library[i];
   updateNowPlaying();
-  showView('now');
+  if (!opts.keepView) showView('now');
   setStatus('');
+
+  releaseAudio(t);
 
   if (engine === 'element') {
     if (!t.arrayBuffer && !t.file && t.readyPromise) await t.readyPromise;
+    if (!t.arrayBuffer && !t.file) {
+      setStatus('Loading…', true);
+      const ok = await ensureAudioLoaded(t);
+      if (!ok) { setStatus('Audio for this track is missing.'); return; }
+      setStatus('');
+    }
     const url = trackBlobUrl(t);
     if (url) {
       audio.src = url;
@@ -1945,7 +2021,10 @@ async function deleteTrack(i){
 
   // remove from storage
   try {
-    if (backend === 'idb' && idb) await idbTx('readwrite', s => s.delete(t.id));
+    if (backend === 'idb' && idb) {
+      await idbTx('readwrite', s => s.delete(t.id), DB_STORE);
+      await idbTx('readwrite', s => s.delete(t.id), DB_AUDIO);
+    }
     else if (backend === 'host') {
       const n = t.chunkCount || 0;
       for (let c = 0; c < n; c++) await window.storage.delete('audio:' + t.id + ':' + c, false);
@@ -2018,7 +2097,7 @@ async function applyBatchEdit(){
 async function savePlaylists(){
   try {
     if (backend === 'idb' && idb) {
-      await idbPut({ id: '__playlists', playlists: JSON.stringify(playlists) });
+      await idbPut({ id: '__playlists', playlists: JSON.stringify(playlists) }, DB_META);
     } else if (backend === 'host') {
       await setWithRetry('playlists', JSON.stringify(playlists));
     }
@@ -2028,8 +2107,7 @@ async function savePlaylists(){
 async function loadPlaylists(){
   try {
     if (backend === 'idb' && idb) {
-      const all = await idbGetAll();
-      const rec = all.find(r => r.id === '__playlists');
+      const rec = await idbGetOne('__playlists', DB_META);
       if (rec && rec.playlists) playlists = JSON.parse(rec.playlists);
     } else if (backend === 'host') {
       const rec = await window.storage.get('playlists', false);
@@ -2102,7 +2180,7 @@ function applyDarkUI(){
 async function savePrefs(){
   const prefs = { theme: currentTheme, darkUI: darkUI };
   try {
-    if (backend === 'idb' && idb) await idbPut({ id: '__prefs', prefs: JSON.stringify(prefs) });
+    if (backend === 'idb' && idb) await idbPut({ id: '__prefs', prefs: JSON.stringify(prefs) }, DB_META);
     else if (backend === 'host') await setWithRetry('prefs', JSON.stringify(prefs));
   } catch (e) { /* prefs are non-critical */ }
 }
@@ -2111,8 +2189,7 @@ async function loadPrefs(){
   try {
     let raw = null;
     if (backend === 'idb' && idb) {
-      const all = await idbGetAll();
-      const rec = all.find(r => r.id === '__prefs');
+      const rec = await idbGetOne('__prefs', DB_META);
       if (rec) raw = rec.prefs;
     } else if (backend === 'host') {
       const rec = await window.storage.get('prefs', false);
@@ -2190,6 +2267,7 @@ function brickLaunch(){
   brick.launched = true;
   brick.ball.dx = 2.2 * (Math.random() > 0.5 ? 1 : -1);
   brick.ball.dy = -2.6;
+  SFX.launch();
   document.getElementById('brick-hint').textContent = '';
 }
 
@@ -2206,8 +2284,8 @@ function brickLoop(){
 
   if (brick.launched && !brick.over) {
     ball.x += ball.dx; ball.y += ball.dy;
-    if (ball.x < ball.r || ball.x > W - ball.r) ball.dx *= -1;
-    if (ball.y < ball.r) ball.dy *= -1;
+    if (ball.x < ball.r || ball.x > W - ball.r) { ball.dx *= -1; SFX.wall(); }
+    if (ball.y < ball.r) { ball.dy *= -1; SFX.wall(); }
 
     // paddle
     if (ball.y + ball.r >= H - 14 && ball.y < H - 6 &&
@@ -2215,6 +2293,7 @@ function brickLoop(){
       ball.dy = -Math.abs(ball.dy);
       const hit = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
       ball.dx = hit * 3;
+      SFX.paddle();
     }
 
     // bricks
@@ -2225,7 +2304,7 @@ function brickLoop(){
         ball.dy *= -1;
         brick.score += 10;
         document.getElementById('brick-score').textContent = brick.score;
-        playClick();
+        SFX.brick(b.row);
         break;
       }
     }
@@ -2237,14 +2316,17 @@ function brickLoop(){
       ball.x = paddle.x + paddle.w / 2; ball.y = H - 40; ball.dx = 0; ball.dy = 0;
       if (brick.lives <= 0) {
         brick.over = true;
+        SFX.over();
         document.getElementById('brick-hint').textContent = 'Game over — score ' + brick.score + '. Press MENU to exit.';
       } else {
+        SFX.lose();
         document.getElementById('brick-hint').textContent = brick.lives + ' lives left · center to launch';
       }
     }
 
     if (bricks.every(b => !b.alive)) {
       brick.over = true;
+      SFX.win();
       document.getElementById('brick-hint').textContent = 'Cleared! Score ' + brick.score;
     }
   }
@@ -2297,8 +2379,7 @@ function quizNextRound(){
   });
 
   // play a short clip from a random point
-  playIndex(answer).then(() => {
-    showView('quiz'); // playIndex switches to Now Playing; come back
+  playIndex(answer, { keepView: true }).then(() => {
     const dur = currentDuration() || 60;
     seekTo(Math.random() * Math.max(1, dur * 0.6) + dur * 0.1);
     quiz.timer = setTimeout(() => { if (isPlaying) togglePlay(); }, 6000);
@@ -2317,7 +2398,8 @@ function quizAnswer(i, btn){
     const right = document.querySelector('.quiz-opt[data-i="' + quiz.answer + '"]');
     if (right) right.classList.add('right');
   }
-  if (correct) { quiz.score += 10; document.getElementById('quiz-score').textContent = quiz.score; }
+  if (correct) { quiz.score += 10; document.getElementById('quiz-score').textContent = quiz.score; SFX.right(); }
+  else SFX.wrong();
   document.getElementById('quiz-status').textContent =
     (correct ? 'Correct! ' : 'Nope — ') + library[quiz.answer].title + ' · ' + library[quiz.answer].artist;
   document.getElementById('btn-quiz-start').textContent = 'Next';
@@ -2493,7 +2575,7 @@ async function applyPendingMetaTo(track){
 async function savePendingMeta(){
   try {
     const json = JSON.stringify(pendingMeta);
-    if (backend === 'idb' && idb) await idbPut({ id: '__pendingmeta', data: json });
+    if (backend === 'idb' && idb) await idbPut({ id: '__pendingmeta', data: json }, DB_META);
     else if (backend === 'host') await setWithRetry('pendingmeta', json);
   } catch (e) { /* non-critical */ }
 }
@@ -2501,8 +2583,7 @@ async function savePendingMeta(){
 async function loadPendingMeta(){
   try {
     if (backend === 'idb' && idb) {
-      const all = await idbGetAll();
-      const rec = all.find(r => r.id === '__pendingmeta');
+      const rec = await idbGetOne('__pendingmeta', DB_META);
       if (rec && rec.data) pendingMeta = JSON.parse(rec.data);
     } else if (backend === 'host') {
       const rec = await window.storage.get('pendingmeta', false);
@@ -2627,8 +2708,10 @@ async function saveTrackMetaToStorage(track){
   try {
     if (backend === 'idb') {
       await idbPut({
-        id: track.id, audio: track.arrayBuffer,
+        id: track.id,
         mimeType: track.mimeType || 'audio/mpeg',
+        fileName: track.fileName || '',
+        fileSize: track.fileSize || 0,
         title: track.title, artist: track.artist, album: track.album,
         albumArtist: track.albumArtist, composer: track.composer, genre: track.genre,
         year: track.year, trackNo: track.trackNo, comments: track.comments, cover: track.cover
@@ -2713,7 +2796,9 @@ function updateStoragePanel(){
 // just open it directly in Safari/Chrome) and IndexedDB takes over.
 
 const DB_NAME = 'apg-ipod-library';
-const DB_STORE = 'tracks';
+const DB_STORE = 'tracks';   // metadata only — small, loaded at startup
+const DB_AUDIO = 'audio';    // raw bytes — loaded on demand, never all at once
+const DB_META  = 'meta';     // prefs, playlists, pending metadata
 let idb = null;
 let backend = 'none'; // 'idb' | 'host' | 'none'
 
@@ -2721,11 +2806,37 @@ function openIDB(){
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) return reject(new Error('IndexedDB not available'));
     let req;
-    try { req = window.indexedDB.open(DB_NAME, 1); }
+    try { req = window.indexedDB.open(DB_NAME, 2); }
     catch (e) { return reject(e); }
-    req.onupgradeneeded = () => {
+    req.onupgradeneeded = (ev) => {
       const db = req.result;
       if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath: 'id' });
+      if (!db.objectStoreNames.contains(DB_AUDIO)) db.createObjectStore(DB_AUDIO, { keyPath: 'id' });
+      if (!db.objectStoreNames.contains(DB_META))  db.createObjectStore(DB_META,  { keyPath: 'id' });
+      // v1 kept audio inside the track record; migrate it out on upgrade
+      if (ev.oldVersion === 1) {
+        try {
+          const tx = req.transaction;
+          const trackStore = tx.objectStore(DB_STORE);
+          const audioStore = tx.objectStore(DB_AUDIO);
+          const metaStore = tx.objectStore(DB_META);
+          trackStore.openCursor().onsuccess = (e2) => {
+            const cur = e2.target.result;
+            if (!cur) return;
+            const rec = cur.value;
+            if (rec && rec.id && String(rec.id).indexOf('__') === 0) {
+              metaStore.put(rec);
+              cur.delete();
+            } else if (rec && rec.audio) {
+              audioStore.put({ id: rec.id, audio: rec.audio });
+              const copy = Object.assign({}, rec);
+              delete copy.audio;
+              cur.update(copy);
+            }
+            cur.continue();
+          };
+        } catch (e) { /* migration is best-effort */ }
+      }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
@@ -2734,10 +2845,10 @@ function openIDB(){
   });
 }
 
-function idbTx(mode, fn){
+function idbTx(mode, fn, storeName){
   return new Promise((resolve, reject) => {
-    const tx = idb.transaction(DB_STORE, mode);
-    const store = tx.objectStore(DB_STORE);
+    const tx = idb.transaction(storeName || DB_STORE, mode);
+    const store = tx.objectStore(storeName || DB_STORE);
     let result;
     try { result = fn(store); } catch (e) { return reject(e); }
     tx.oncomplete = () => resolve(result && result.result !== undefined ? result.result : result);
@@ -2746,16 +2857,27 @@ function idbTx(mode, fn){
   });
 }
 
-function idbPut(record){ return idbTx('readwrite', s => s.put(record)); }
-function idbGetAll(){
+function idbPut(record, storeName){ return idbTx('readwrite', s => s.put(record), storeName); }
+
+function idbGetAll(storeName){
   return new Promise((resolve, reject) => {
-    const tx = idb.transaction(DB_STORE, 'readonly');
-    const req = tx.objectStore(DB_STORE).getAll();
+    const tx = idb.transaction(storeName || DB_STORE, 'readonly');
+    const req = tx.objectStore(storeName || DB_STORE).getAll();
     req.onsuccess = () => resolve(req.result || []);
     req.onerror = () => reject(req.error);
   });
 }
-function idbClear(){ return idbTx('readwrite', s => s.clear()); }
+
+// Fetch a single record — used so we never pull every audio blob into memory
+function idbGetOne(id, storeName){
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction(storeName || DB_STORE, 'readonly');
+    const req = tx.objectStore(storeName || DB_STORE).get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+function idbClear(storeName){ return idbTx('readwrite', s => s.clear(), storeName); }
 
 // ---- Backend detection ----
 async function testStorage(){
@@ -2765,8 +2887,8 @@ async function testStorage(){
   try {
     idb = await openIDB();
     // prove a real write works
-    await idbPut({ id: '__selftest', probe: new Uint8Array([1,2,3]).buffer });
-    await idbTx('readwrite', s => s.delete('__selftest'));
+    await idbPut({ id: '__selftest', probe: 1 }, DB_META);
+    await idbTx('readwrite', s => s.delete('__selftest'), DB_META);
     backend = 'idb';
     storageAvailable = true;
     storageDiag.push(['IndexedDB', 'working']);
@@ -2829,10 +2951,12 @@ async function saveTrackToStorage(track){
   try {
     if (backend === 'idb') {
       // Raw bytes straight in — no base64, no chunking, no size cap
+      await idbPut({ id: track.id, audio: track.arrayBuffer }, DB_AUDIO);
       await idbPut({
         id: track.id,
-        audio: track.arrayBuffer,
         mimeType: track.mimeType || 'audio/mpeg',
+        fileName: track.fileName || '',
+        fileSize: track.fileSize || 0,
         title: track.title,
         artist: track.artist,
         album: track.album,
@@ -2893,13 +3017,15 @@ async function loadLibraryFromStorage(){
 
   try {
     if (backend === 'idb') {
-      const records = await idbGetAll();
+      const records = await idbGetAll(DB_STORE);
       for (const r of records) {
-        if (r.id === '__selftest' || !r.audio) continue;
+        if (!r.id || String(r.id).indexOf('__') === 0) continue;
         library.push({
           id: r.id, file: null,
           mimeType: r.mimeType || 'audio/mpeg',
-          arrayBuffer: r.audio, audioBuffer: null,
+          fileName: r.fileName || '',
+          fileSize: r.fileSize || 0,
+          arrayBuffer: null, audioBuffer: null, storedAudio: true,
           title: r.title, artist: r.artist, album: r.album,
           albumArtist: r.albumArtist || '', composer: r.composer || '',
           genre: r.genre || '', year: r.year || '', trackNo: r.trackNo || '',
@@ -2941,7 +3067,8 @@ async function loadLibraryFromStorage(){
 async function clearLibrary(){
   try {
     if (backend === 'idb' && idb) {
-      await idbClear();
+      await idbClear(DB_STORE);
+      await idbClear(DB_AUDIO);
     } else if (backend === 'host') {
       const ids = await readIndex();
       for (const id of ids) {
