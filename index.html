@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="APG iPod">
+<meta name="theme-color" content="#111113">
+<title>APG Library — iPod Style</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+<style>
+  :root{
+    --pod-body:#2b2b2e;
+    --pod-body-dark:#111113;
+    --screen-bg:#f4f4f2;
+    --wheel:#3a3a3d;
+    --accent:#2b6cb0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#0a0a0c;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  .device{
+    width:340px;
+    background:linear-gradient(180deg,var(--pod-body),var(--pod-body-dark));
+    border-radius:34px;
+    padding:22px 18px 30px;
+    box-shadow:0 30px 60px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.6);
+  }
+  .screen{
+    background:var(--screen-bg);
+    border:5px solid #1a1a1a;
+    border-radius:10px;
+    height:340px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .statusbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 10px;
+    font-size:12px;
+    font-weight:600;
+    border-bottom:1px solid #ddd;
+    color:#222;
+  }
+  .status-right{display:flex;align-items:center;gap:6px;}
+  .status-play-icon{
+    width:0;height:0;
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-left:7px solid #222;
+    display:inline-block;
+  }
+  .status-play-icon.paused{
+    width:8px;height:9px;border:none;
+    background:
+      linear-gradient(#222,#222) left/3px 100% no-repeat,
+      linear-gradient(#222,#222) right/3px 100% no-repeat;
+  }
+  .battery{display:flex;align-items:center;}
+  .battery-body{
+    width:22px;height:11px;
+    border:1.4px solid #222;
+    border-radius:2.5px;
+    padding:1.4px;
+    box-sizing:border-box;
+    display:block;
+  }
+  .battery-fill{
+    display:block;
+    height:100%;
+    background:#222;
+    border-radius:1px;
+    width:50%;
+  }
+  .battery-nub{
+    width:2px;height:5px;
+    background:#222;
+    border-radius:0 2px 2px 0;
+    margin-left:1px;
+  }
+  .screen-body{
+    flex:1;
+    overflow:hidden;
+    position:relative;
+  }
+  .view{
+    position:absolute;
+    inset:0;
+    display:none;
+    flex-direction:column;
+  }
+  .view.active{display:flex;}
+
+  /* Library list view */
+  .list{
+    overflow-y:auto;
+    flex:1;
+  }
+  .list-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 10px;
+    border-bottom:1px solid #eee;
+    font-size:13px;
+    color:#222;
+    cursor:pointer;
+  }
+  .list-item img{
+    width:30px;height:30px;object-fit:cover;border-radius:3px;background:#ccc;flex-shrink:0;
+  }
+  .list-item .meta{overflow:hidden;}
+  .list-item .title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .list-item .sub{font-size:11px;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .list-item:active{background:var(--accent);}
+  .list-item:active .title,.list-item:active .sub{color:#fff;}
+
+  .lib-header, .sub-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 10px;
+    font-size:13px;
+    font-weight:600;
+    color:#222;
+    border-bottom:1px solid #e5e5e5;
+  }
+  .icon-btn{
+    background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:2px 6px;
+  }
+  .icon-btn.active{color:var(--accent);}
+  .back-btn{font-size:22px;font-weight:700;line-height:1;color:#3a7bd0;}
+
+  .menu-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 12px;
+    font-size:14px;
+    color:#222;
+    border-bottom:1px solid #eee;
+    cursor:pointer;
+  }
+  .menu-item .chev{color:#bbb;font-size:14px;}
+  .menu-item.selected{background:var(--accent);color:#fff;}
+  .menu-item.selected .chev{color:#fff;}
+
+  .import-row{
+    padding:10px;
+    display:flex;
+    gap:8px;
+  }
+  .import-btn{
+    flex:1;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:8px 6px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .import-btn.secondary{background:#888;}
+  .empty-msg{
+    padding:20px;
+    font-size:12px;
+    color:#888;
+    text-align:center;
+  }
+
+  /* Cover flow */
+  .coverflow{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    overflow:hidden;
+    touch-action:none;
+    padding-top:6px;
+  }
+  .coverflow-track{
+    position:relative;
+    height:160px;
+    perspective:600px;
+  }
+  .cf-cover{
+    position:absolute;
+    top:25px;left:50%;
+    width:110px;height:110px;
+    object-fit:cover;
+    border-radius:3px;
+    background:#ccc;
+    box-shadow:0 8px 16px rgba(0,0,0,.3);
+    transition:transform .25s ease, opacity .25s ease, z-index 0s;
+    cursor:pointer;
+  }
+  .coverflow-title{
+    text-align:center;font-weight:700;font-size:13px;color:#111;margin-top:14px;
+  }
+  .coverflow-artist{
+    text-align:center;font-size:11px;color:#777;margin-top:2px;
+  }
+
+  /* Now playing view */
+  .np-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-bottom:1px solid #e5e5e5;
+  }
+  .np-header .np-quote{flex:1;text-align:left;color:#999;font-size:15px;margin-left:2px;}
+  .np-icon{color:#999;font-size:14px;}
+  .np-body{
+    display:flex;
+    gap:12px;
+    padding:16px 14px 6px;
+    align-items:flex-start;
+  }
+  .cover{
+    width:110px;height:110px;border-radius:3px;background:#ccc;
+    object-fit:cover;
+    box-shadow:0 6px 12px rgba(0,0,0,.25);
+    flex-shrink:0;
+  }
+  .np-text{padding-top:2px;overflow:hidden;}
+  .np-title{font-weight:700;font-size:15px;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-artist{font-size:12px;color:#444;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-album{font-size:12px;color:#888;margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-count{font-size:11px;color:#aaa;margin-top:10px;}
+  .np-scrub-row{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px 0;
+    margin-top:auto;
+  }
+  .np-time{font-size:10px;color:#999;width:32px;flex-shrink:0;}
+  .np-time#np-time-remaining{text-align:right;}
+  .storage-panel{
+    margin:4px 10px 0;
+    padding:8px 10px;
+    background:#ececec;
+    border-radius:5px;
+    font-size:11px;
+    color:#333;
+    line-height:1.5;
+  }
+  .storage-panel .row{display:flex;justify-content:space-between;gap:8px;}
+  .storage-panel .ok{color:#1e7d32;font-weight:600;}
+  .storage-panel .bad{color:#c0392b;font-weight:600;}
+  .storage-panel .saving{color:#b06f00;font-weight:600;}
+  .track-num{
+    width:22px;flex-shrink:0;text-align:center;
+    font-size:11px;color:#999;
+  }
+  .list-item.selected .track-num{color:#fff;}
+  .info-btn{
+    background:none;border:none;color:#9aa0a6;font-size:15px;
+    padding:2px 4px;cursor:pointer;flex-shrink:0;
+  }
+  .list-item.selected .info-btn{color:#fff;}
+
+  /* ---- Classic iTunes "Get Info" dialog ---- */
+  .itunes-overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.45);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:100;
+    padding:16px;
+  }
+  .itunes-overlay.open{display:flex;}
+  .itunes-window{
+    width:100%;max-width:330px;
+    background:linear-gradient(180deg,#f6f6f6,#e8e8e8);
+    border:1px solid #b0b0b0;
+    border-radius:8px;
+    box-shadow:0 18px 50px rgba(0,0,0,.55);
+    overflow:hidden;
+    font-family:-apple-system,"Lucida Grande",sans-serif;
+    max-height:92vh;
+    display:flex;flex-direction:column;
+  }
+  .itunes-titlebar{
+    background:linear-gradient(180deg,#e4e4e4,#c9c9c9);
+    border-bottom:1px solid #a8a8a8;
+    padding:6px 10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .tl-dots{display:flex;gap:5px;}
+  .tl-dots .d{width:11px;height:11px;border-radius:50%;display:inline-block;border:.5px solid rgba(0,0,0,.25);}
+  .tl-dots .red{background:#ff5f57;}
+  .tl-dots .yellow{background:#febc2e;}
+  .tl-dots .green{background:#28c840;}
+  .tl-title{
+    flex:1;text-align:center;font-size:12px;font-weight:700;color:#3a3a3a;
+    margin-right:38px;
+  }
+  .itunes-tabs{
+    display:flex;gap:0;
+    background:#ededed;
+    border-bottom:1px solid #c4c4c4;
+    padding:6px 8px 0;
+  }
+  .itunes-tab{
+    flex:1;
+    background:linear-gradient(180deg,#fdfdfd,#e2e2e2);
+    border:1px solid #b6b6b6;
+    border-bottom:none;
+    border-radius:5px 5px 0 0;
+    font-size:11px;
+    padding:5px 4px;
+    color:#333;
+    cursor:pointer;
+  }
+  .itunes-tab.active{
+    background:linear-gradient(180deg,#ffffff,#f2f2f2);
+    font-weight:700;
+  }
+  .itunes-pane{
+    padding:12px 14px;
+    overflow-y:auto;
+  }
+  .fld{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .fld label{
+    width:82px;flex-shrink:0;
+    text-align:right;
+    font-size:11px;color:#444;
+  }
+  .fld input, .fld textarea{
+    flex:1;min-width:0;
+    border:1px solid #a9a9a9;
+    border-radius:3px;
+    padding:4px 6px;
+    font-size:12px;
+    background:#fff;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.08);
+    font-family:inherit;
+  }
+  .fld input:focus, .fld textarea:focus{
+    outline:none;border-color:#4a90d9;box-shadow:0 0 0 2px rgba(74,144,217,.3);
+  }
+  .fld-row{display:flex;gap:8px;}
+  .fld-row .half{flex:1;}
+  .fld-row .half label{width:40px;}
+
+  .art-well{
+    width:150px;height:150px;margin:4px auto 10px;
+    border:1px solid #b0b0b0;
+    background:#fff;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.12);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+  }
+  .art-well img{width:100%;height:100%;object-fit:cover;display:none;}
+  .art-well img.shown{display:block;}
+  .art-empty{font-size:11px;color:#999;}
+  .art-actions{display:flex;gap:8px;justify-content:center;}
+  .art-hint{text-align:center;font-size:10px;color:#888;margin-top:8px;}
+  #art-input{display:none;}
+
+  .itunes-footer{
+    display:flex;justify-content:flex-end;gap:8px;
+    padding:10px 14px;
+    background:#ededed;
+    border-top:1px solid #c4c4c4;
+  }
+  .itunes-btn{
+    background:linear-gradient(180deg,#fdfdfd,#e6e6e6);
+    border:1px solid #a9a9a9;
+    border-radius:4px;
+    padding:5px 14px;
+    font-size:12px;
+    color:#222;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .itunes-btn:active{background:linear-gradient(180deg,#dcdcdc,#cfcfcf);}
+  .itunes-btn.primary{
+    background:linear-gradient(180deg,#5a9ee0,#3b7fc4);
+    border-color:#2f6ba8;color:#fff;font-weight:600;
+  }
+  .itunes-btn.primary:active{background:linear-gradient(180deg,#3b7fc4,#2f6ba8);}
+
+  .np-status{
+    font-size:9px;
+    color:#c0392b;
+    padding:6px 14px 0;
+    text-align:center;
+    line-height:1.3;
+    word-break:break-word;
+  }
+  .np-status.info{color:#777;}
+  .progress{
+    flex:1;height:3px;background:#ddd;border-radius:2px;position:relative;
+  }
+  .progress-fill{height:100%;background:#8a8a8a;border-radius:2px;width:0%;}
+  .progress-dot{
+    position:absolute;top:50%;left:0%;
+    width:9px;height:9px;border-radius:50%;
+    background:#222;
+    transform:translate(-50%,-50%);
+    box-shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  /* Click wheel */
+  .wheel-wrap{
+    margin-top:26px;
+    display:flex;
+    justify-content:center;
+  }
+  .wheel{
+    width:230px;height:230px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #4a4a4d, #1c1c1e 70%);
+    position:relative;
+    box-shadow:0 6px 14px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .wheel-label{
+    position:absolute;
+    font-size:12px;
+    font-weight:700;
+    color:#8a8a8e;
+    letter-spacing:1px;
+    user-select:none;
+    cursor:pointer;
+  }
+  .lbl-menu{top:18px;left:50%;transform:translateX(-50%);}
+  .lbl-fwd{right:18px;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
+  .lbl-back{left:18px;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
+  .lbl-play{bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;}
+  .lbl-fwd .bar, .lbl-back .bar{
+    width:2px;height:13px;background:#8a8a8e;display:inline-block;
+  }
+  .center-btn{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:92px;height:92px;border-radius:50%;
+    background:linear-gradient(180deg,#333336,#18181a);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04);
+    cursor:pointer;
+    user-select:none;
+  }
+  .play-tri{
+    width:0;height:0;
+    border-top:8px solid transparent;
+    border-bottom:8px solid transparent;
+    border-left:13px solid #8a8a8e;
+  }
+  .pause-bars{display:flex;gap:3px;}
+  .pause-bars span{width:4px;height:16px;background:#8a8a8e;display:inline-block;}
+  .wheel{touch-action:none;user-select:none;}
+  .list-item.selected{background:var(--accent);}
+  .list-item.selected .title,.list-item.selected .sub{color:#fff;}
+  input[type=file]{display:none;}
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="screen">
+    <div class="statusbar">
+      <span id="statusbar-label">Albums</span>
+      <span id="clock">12:00</span>
+      <span class="status-right">
+        <span id="status-play" class="status-play-icon"></span>
+        <span class="battery">
+          <span class="battery-body"><span class="battery-fill" id="battery-fill"></span></span>
+          <span class="battery-nub"></span>
+        </span>
+      </span>
+    </div>
+    <div class="screen-body">
+
+      <!-- MENU VIEW (home) -->
+      <div class="view active" id="view-menu">
+        <div class="list" id="menu-list"></div>
+      </div>
+
+      <!-- SONGS VIEW -->
+      <div class="view" id="view-songs">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>‹</button>
+          <span>Songs</span>
+          <span></span>
+        </div>
+        <div class="list" id="track-list">
+          <div class="empty-msg">No tracks yet. Go to Settings to import music — covers &amp; tags load automatically.</div>
+        </div>
+      </div>
+
+      <!-- ALBUMS VIEW (cover flow) -->
+      <div class="view" id="view-albums">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>‹</button>
+          <span>Albums</span>
+          <span></span>
+        </div>
+        <div class="coverflow" id="coverflow">
+          <div class="coverflow-track" id="coverflow-track"></div>
+          <div class="coverflow-title" id="coverflow-title">—</div>
+          <div class="coverflow-artist" id="coverflow-artist">—</div>
+        </div>
+      </div>
+
+      <!-- ALBUM TRACKS VIEW -->
+      <div class="view" id="view-albumtracks">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back-albums>‹</button>
+          <span id="albumtracks-title">Album</span>
+          <span></span>
+        </div>
+        <div class="list" id="album-track-list"></div>
+      </div>
+
+      <!-- SETTINGS VIEW -->
+      <div class="view" id="view-settings">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>‹</button>
+          <span>Settings</span>
+          <span></span>
+        </div>
+        <div class="import-row">
+          <button class="import-btn" id="btn-import">＋ Import Music</button>
+          <button class="import-btn secondary" id="btn-spotify">Connect Spotify</button>
+        </div>
+        <input type="file" id="file-input" accept="audio/*,.mp3,.m4a,.wav,.flac,.aac,.ogg,.wma,audio/mpeg,audio/mp4,audio/x-m4a" multiple>
+        <div class="empty-msg" style="text-align:left;">Your library is saved on this device and reloads automatically next time you open the app.</div>
+        <div class="storage-panel" id="storage-panel">Checking storage…</div>
+        <div class="import-row">
+          <button class="import-btn secondary" id="btn-test-storage">Test Storage</button>
+          <button class="import-btn secondary" id="btn-clear-library">Clear Saved Library</button>
+        </div>
+      </div>
+
+      <!-- NOW PLAYING VIEW -->
+      <div class="view" id="view-now">
+        <div class="np-header">
+          <button class="icon-btn back-btn" data-back>‹</button>
+          <span class="np-quote">”</span>
+          <span></span>
+          <span class="np-icon np-shuffle">⇄</span>
+          <span class="np-icon np-repeat">↻</span>
+        </div>
+        <div class="np-body">
+          <img class="cover" id="np-cover" src="" alt="">
+          <div class="np-text">
+            <div class="np-title" id="np-title">—</div>
+            <div class="np-artist" id="np-artist">—</div>
+            <div class="np-album" id="np-album">—</div>
+            <div class="np-count" id="np-count">1 / 1</div>
+          </div>
+        </div>
+        <div class="np-scrub-row">
+          <span class="np-time" id="np-time-elapsed">0:00</span>
+          <div class="progress"><div class="progress-fill" id="np-progress"></div><div class="progress-dot" id="np-dot"></div></div>
+          <span class="np-time" id="np-time-remaining">-0:00</span>
+        </div>
+        <div class="np-status" id="np-status"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="wheel-wrap">
+    <div class="wheel">
+      <div class="wheel-label lbl-menu" id="btn-menu">MENU</div>
+      <div class="wheel-label lbl-fwd" id="btn-next">▶▶<span class="bar"></span></div>
+      <div class="wheel-label lbl-back" id="btn-prev"><span class="bar"></span>◀◀</div>
+      <div class="wheel-label lbl-play" id="btn-play">
+        <span class="play-tri"></span>
+        <span class="pause-bars"><span></span><span></span></span>
+      </div>
+      <div class="center-btn" id="btn-center"></div>
+    </div>
+  </div>
+</div>
+
+<div class="itunes-overlay" id="info-overlay">
+  <div class="itunes-window">
+    <div class="itunes-titlebar">
+      <span class="tl-dots"><i class="d red"></i><i class="d yellow"></i><i class="d green"></i></span>
+      <span class="tl-title">Item Information</span>
+    </div>
+    <div class="itunes-tabs">
+      <button class="itunes-tab active">Info</button>
+      <button class="itunes-tab" id="tab-artwork">Artwork</button>
+    </div>
+
+    <div class="itunes-pane" id="pane-info">
+      <div class="fld"><label>Name</label><input id="edit-title" type="text"></div>
+      <div class="fld"><label>Artist</label><input id="edit-artist" type="text"></div>
+      <div class="fld"><label>Album</label><input id="edit-album" type="text"></div>
+      <div class="fld"><label>Album Artist</label><input id="edit-albumartist" type="text"></div>
+      <div class="fld"><label>Composer</label><input id="edit-composer" type="text"></div>
+      <div class="fld"><label>Genre</label><input id="edit-genre" type="text" list="genre-list">
+        <datalist id="genre-list">
+          <option>Hip-Hop/Rap</option><option>R&amp;B/Soul</option><option>Pop</option>
+          <option>Rock</option><option>Electronic</option><option>Jazz</option>
+          <option>Alternative</option><option>Country</option><option>Reggae</option>
+        </datalist>
+      </div>
+      <div class="fld-row">
+        <div class="fld half"><label>Year</label><input id="edit-year" type="text" inputmode="numeric"></div>
+        <div class="fld half"><label>Track</label><input id="edit-track" type="text" inputmode="numeric"></div>
+      </div>
+      <div class="fld"><label>Comments</label><textarea id="edit-comments" rows="2"></textarea></div>
+    </div>
+
+    <div class="itunes-pane" id="pane-artwork" style="display:none;">
+      <div class="art-well">
+        <img id="edit-cover-preview" src="" alt="">
+        <div class="art-empty" id="art-empty">No Artwork</div>
+      </div>
+      <div class="art-actions">
+        <button class="itunes-btn" id="btn-choose-art">Add Artwork…</button>
+        <button class="itunes-btn" id="btn-remove-art">Remove</button>
+      </div>
+      <input type="file" id="art-input" accept="image/*">
+      <div class="art-hint">JPEG or PNG. Square images look best.</div>
+    </div>
+
+    <div class="itunes-footer">
+      <button class="itunes-btn" id="btn-info-cancel">Cancel</button>
+      <button class="itunes-btn primary" id="btn-info-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<audio id="player" preload="metadata" playsinline></audio>
+
+<script>
+// ---- Clock ----
+function updateClock(){
+  const d = new Date();
+  let h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if (h === 0) h = 12;
+  document.getElementById('clock').textContent = `${h}:${m} ${ampm}`;
+}
+updateClock();
+setInterval(updateClock, 1000 * 10);
+
+// ---- Battery (real device level if the browser exposes it, else static) ----
+const batteryFill = document.getElementById('battery-fill');
+function setBatteryLevel(pct){
+  batteryFill.style.width = Math.max(4, Math.min(100, pct)) + '%';
+}
+if (navigator.getBattery) {
+  navigator.getBattery().then(bat => {
+    setBatteryLevel(bat.level * 100);
+    bat.addEventListener('levelchange', () => setBatteryLevel(bat.level * 100));
+  }).catch(() => setBatteryLevel(50));
+} else {
+  setBatteryLevel(50); // Battery API unsupported in this browser (e.g. iOS Safari) — static fallback
+}
+
+// ---- Status bar play/pause icon ----
+function updateStatusPlayIcon(){
+  const el = document.getElementById('status-play');
+  el.classList.toggle('paused', !isPlaying);
+}
+let currentIndex = -1;
+let selectedIndex = -1;
+let library = [];
+let currentView = 'menu';
+let selectedMenuIndex = 0;
+const audio = document.getElementById('player');
+// (status icon is initialised at the end, once playback state exists)
+
+const trackList = document.getElementById('track-list');
+const menuListEl = document.getElementById('menu-list');
+
+// ---- Menu (home) definition ----
+const MENU_ITEMS = [
+  { label: 'Playlists', action: () => alert('Playlists — coming soon.') },
+  { label: 'Artists', action: () => alert('Artist browsing — coming soon.') },
+  { label: 'Albums', action: () => { showView('albums'); render(); } },
+  { label: 'Songs', action: () => { showView('songs'); render(); } },
+  { label: 'Genres', action: () => alert('Genre browsing — coming soon.') },
+  { label: 'Settings', action: () => showView('settings') },
+  { label: 'Shuffle Songs', action: () => shuffleAndPlay() },
+];
+
+function renderMenu(){
+  menuListEl.innerHTML = MENU_ITEMS.map((item, i) => `
+    <div class="menu-item${i === selectedMenuIndex ? ' selected' : ''}" data-idx="${i}">
+      <span>${item.label}</span>
+      <span class="chev">›</span>
+    </div>
+  `).join('');
+  [...menuListEl.querySelectorAll('.menu-item')].forEach(el => {
+    el.onclick = () => {
+      selectedMenuIndex = parseInt(el.dataset.idx);
+      renderMenu();
+      MENU_ITEMS[selectedMenuIndex].action();
+    };
+  });
+}
+
+function shuffleAndPlay(){
+  if (library.length === 0){ alert('Import some music first.'); return; }
+  selectedIndex = Math.floor(Math.random() * library.length);
+  playIndex(selectedIndex);
+}
+
+// ---- Click-wheel sound (synthesized, no audio file needed) ----
+let actx = null;
+function playClick(){
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  const dur = 0.012;
+  const bufferSize = actx.sampleRate * dur;
+  const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    // short noise burst, tightly enveloped -> plasticky tick
+    const envelope = Math.pow(1 - i / bufferSize, 6);
+    data[i] = (Math.random() * 2 - 1) * envelope;
+  }
+  const src = actx.createBufferSource();
+  src.buffer = buffer;
+  const filter = actx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 2800;
+  filter.Q.value = 0.7;
+  const gain = actx.createGain();
+  gain.gain.value = 0.5;
+  src.connect(filter).connect(gain).connect(actx.destination);
+  src.start();
+}
+
+function btnClick(fn){
+  return () => { playClick(); fn(); };
+}
+
+document.getElementById('btn-menu').onclick = btnClick(() => showView('menu'));
+document.getElementById('btn-import').onclick = btnClick(() => document.getElementById('file-input').click());
+document.getElementById('btn-spotify').onclick = btnClick(() => alert('Spotify connect would go here — OAuth + Web Playback SDK, merged into this same library.'));
+
+document.getElementById('file-input').onchange = (e) => {
+  const audioExt = /\.(mp3|m4a|wav|flac|aac|ogg|wma|opus)$/i;
+  const files = [...e.target.files].filter(f => audioExt.test(f.name) || f.type.startsWith('audio/'));
+  const skipped = e.target.files.length - files.length;
+  files.forEach(importFile);
+  if (skipped > 0) alert(`Skipped ${skipped} file(s) that didn't look like audio.`);
+};
+
+document.getElementById('btn-play').onclick = btnClick(() => {
+  if ((currentView === 'songs' || currentView === 'albumtracks') && selectedIndex !== -1) {
+    playIndex(selectedIndex);
+  } else {
+    togglePlay();
+  }
+});
+document.getElementById('btn-next').onclick = btnClick(() => playIndex(currentIndex + 1));
+document.getElementById('btn-prev').onclick = btnClick(() => playIndex(currentIndex - 1));
+document.getElementById('btn-center').onclick = btnClick(() => {
+  if (currentView === 'menu') { MENU_ITEMS[selectedMenuIndex].action(); }
+  else if (currentView === 'albums') { openAlbum(selectedAlbumIndex); }
+  else if (currentView === 'songs' || currentView === 'albumtracks') { playIndex(selectedIndex); }
+  else if (currentView === 'now') { togglePlay(); }
+});
+
+[...document.querySelectorAll('[data-back]')].forEach(btn => {
+  btn.onclick = btnClick(() => showView('menu'));
+});
+[...document.querySelectorAll('[data-back-albums]')].forEach(btn => {
+  btn.onclick = btnClick(() => { showView('albums'); render(); });
+});
+
+// ---- Circular scroll-wheel gesture with click detents ----
+const wheelEl = document.querySelector('.wheel');
+let dragging = false;
+let lastAngle = 0;
+let accumDeg = 0;
+const DETENT_DEG = 15; // degrees per "click" — matches real click wheel feel
+
+function angleFromEvent(e){
+  const rect = wheelEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const point = e.touches ? e.touches[0] : e;
+  const dx = point.clientX - cx;
+  const dy = point.clientY - cy;
+  return Math.atan2(dy, dx) * (180 / Math.PI);
+}
+
+function wheelStart(e){
+  // ignore if the press started on a button/label (those have their own handlers)
+  if (e.target.closest('.center-btn, .wheel-label')) return;
+  dragging = true;
+  lastAngle = angleFromEvent(e);
+  accumDeg = 0;
+  e.preventDefault();
+}
+
+function wheelMove(e){
+  if (!dragging) return;
+  const angle = angleFromEvent(e);
+  let delta = angle - lastAngle;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+  lastAngle = angle;
+  accumDeg += delta;
+
+  while (Math.abs(accumDeg) >= DETENT_DEG) {
+    const dir = accumDeg > 0 ? 1 : -1;
+    accumDeg -= dir * DETENT_DEG;
+    playClick();
+    if (currentView === 'menu') {
+      selectedMenuIndex = Math.max(0, Math.min(MENU_ITEMS.length - 1, selectedMenuIndex + dir));
+      renderMenu();
+    } else if (currentView === 'songs' || currentView === 'albums' || currentView === 'albumtracks') {
+      moveSelection(dir);
+    } else if (currentView === 'now') {
+      seekBy(dir * 3);
+    }
+  }
+  e.preventDefault();
+}
+
+function wheelEnd(){ dragging = false; }
+
+wheelEl.addEventListener('mousedown', wheelStart);
+window.addEventListener('mousemove', wheelMove);
+window.addEventListener('mouseup', wheelEnd);
+wheelEl.addEventListener('touchstart', wheelStart, { passive: false });
+window.addEventListener('touchmove', wheelMove, { passive: false });
+window.addEventListener('touchend', wheelEnd);
+
+// ---- Cover flow swipe gesture ----
+const cfEl = document.getElementById('coverflow');
+let cfDragging = false;
+let cfStartX = 0;
+let cfAccum = 0;
+const CF_SWIPE_PX = 60;
+
+function cfPointX(e){ return (e.touches ? e.touches[0] : e).clientX; }
+
+function cfStart(e){
+  if (e.target.closest('.cf-cover')) return;
+  cfDragging = true;
+  cfStartX = cfPointX(e);
+  cfAccum = 0;
+}
+function cfMove(e){
+  if (!cfDragging) return;
+  const x = cfPointX(e);
+  const delta = x - cfStartX;
+  cfStartX = x;
+  cfAccum += delta;
+  while (Math.abs(cfAccum) >= CF_SWIPE_PX) {
+    const dir = cfAccum > 0 ? -1 : 1; // swipe right -> go to previous cover
+    cfAccum -= (cfAccum > 0 ? CF_SWIPE_PX : -CF_SWIPE_PX);
+    playClick();
+    moveSelection(dir);
+  }
+  e.preventDefault();
+}
+function cfEnd(){ cfDragging = false; }
+
+cfEl.addEventListener('mousedown', cfStart);
+window.addEventListener('mousemove', cfMove);
+window.addEventListener('mouseup', cfEnd);
+cfEl.addEventListener('touchstart', cfStart, { passive: false });
+cfEl.addEventListener('touchmove', cfMove, { passive: false });
+window.addEventListener('touchend', cfEnd);
+
+const VIEW_LABELS = { menu: 'Menu', songs: 'Songs', albums: 'Albums', albumtracks: 'Album', settings: 'Settings', now: 'Now Playing' };
+
+function showView(name){
+  currentView = name;
+  ['menu', 'songs', 'albums', 'albumtracks', 'settings', 'now'].forEach(v => {
+    document.getElementById('view-' + v).classList.toggle('active', v === name);
+  });
+  document.getElementById('statusbar-label').textContent = VIEW_LABELS[name];
+  if (name === 'menu') renderMenu();
+  if (name === 'settings') { if (storageAvailable === null) testStorage(); updateStoragePanel(); }
+}
+
+function generateId(){
+  return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+
+function importFile(file){
+  const track = {
+    id: generateId(),
+    file, url: null,
+    mimeType: file.type || 'audio/mpeg',
+    title: file.name.replace(/\.[^/.]+$/, ''),
+    artist: 'Unknown Artist',
+    album: '',
+    albumArtist: '',
+    composer: '',
+    genre: '',
+    year: '',
+    trackNo: '',
+    comments: '',
+    cover: null
+  };
+  // Read as raw bytes for Web Audio decoding — blob: URLs are blocked in this
+  // sandbox and multi-MB data: URIs exceed Safari's media limit, so we bypass
+  // the <audio> src mechanism entirely.
+  const bufferPromise = new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => { track.arrayBuffer = reader.result; resolve(); };
+    reader.onerror = () => { console.error('FileReader failed for', file.name, reader.error); resolve(); };
+    reader.readAsArrayBuffer(file);
+  });
+  track.readyPromise = bufferPromise;
+
+  library.push(track);
+  const idx = library.length - 1;
+  render();
+
+  bufferPromise.then(() => {
+    if (currentIndex === idx) updateNowPlaying();
+  });
+
+  // Read ID3/metadata tags + embedded cover art
+  const tagsPromise = new Promise((resolve) => {
+    window.jsmediatags.read(file, {
+      onSuccess: (tag) => {
+        const t = tag.tags;
+        if (t.title) track.title = t.title;
+        if (t.artist) track.artist = t.artist;
+        if (t.album) track.album = t.album;
+        if (t.genre) track.genre = t.genre;
+        if (t.year) track.year = t.year;
+        if (t.track) track.trackNo = t.track;
+        if (t.picture) {
+          const { data, format } = t.picture;
+          const bytes = new Uint8Array(data);
+          let binary = '';
+          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+          track.cover = `data:${format};base64,${btoa(binary)}`;
+        }
+        render();
+        if (currentIndex === idx) updateNowPlaying();
+        resolve();
+      },
+      onError: () => resolve() // no tags found, keep filename fallback
+    });
+  });
+
+  // Once both the audio data and tags are ready, persist to on-device storage
+  Promise.all([bufferPromise, tagsPromise]).then(() => saveTrackToStorage(track));
+}
+
+let selectedAlbumIndex = 0;
+let openAlbumKey = null;
+
+// ID3 track numbers are often "5" or "5/17" — pull out the leading number
+function parseTrackNo(v){
+  if (v === undefined || v === null) return null;
+  const m = String(v).match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
+// Group the library into albums (album title + artist), preserving order
+function getAlbums(){
+  const map = new Map();
+  library.forEach((t, i) => {
+    const album = (t.album || 'Unknown Album').trim();
+    const artist = (t.albumArtist || t.artist || 'Unknown Artist').trim();
+    const key = album.toLowerCase() + '|||' + artist.toLowerCase();
+    if (!map.has(key)) {
+      map.set(key, { key, album, artist, cover: t.cover || null, indices: [] });
+    }
+    const entry = map.get(key);
+    entry.indices.push(i);
+    if (!entry.cover && t.cover) entry.cover = t.cover; // first available art
+  });
+
+  // Put each album's tracks in running order: by track number, then by title
+  for (const entry of map.values()) {
+    entry.indices.sort((a, b) => {
+      const na = parseTrackNo(library[a].trackNo);
+      const nb = parseTrackNo(library[b].trackNo);
+      if (na !== null && nb !== null) return na - nb;
+      if (na !== null) return -1;   // numbered tracks come before unnumbered
+      if (nb !== null) return 1;
+      return (library[a].title || '').localeCompare(library[b].title || '');
+    });
+  }
+  return [...map.values()];
+}
+
+function render(){
+  if (currentView === 'songs') renderList();
+  else if (currentView === 'albums') renderCoverflow();
+  else if (currentView === 'albumtracks') renderAlbumTracks();
+}
+
+function renderList(){
+  if (library.length === 0){
+    trackList.innerHTML = '<div class="empty-msg">No tracks yet. Go to Settings to import music — covers &amp; tags load automatically.</div>';
+    return;
+  }
+  trackList.innerHTML = library.map((t, i) => `
+    <div class="list-item${i === selectedIndex ? ' selected' : ''}" data-idx="${i}">
+      <img src="${t.cover || placeholderCover()}">
+      <div class="meta">
+        <div class="title">${escapeHtml(t.title)}</div>
+        <div class="sub">${escapeHtml(t.artist)}${t.album ? ' — ' + escapeHtml(t.album) : ''}</div>
+      </div>
+      <button class="info-btn" data-info="${i}" title="Get Info">ⓘ</button>
+    </div>
+  `).join('');
+  [...trackList.querySelectorAll('.list-item')].forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest('.info-btn')) return;
+      selectedIndex = parseInt(el.dataset.idx); render(); playIndex(selectedIndex);
+    };
+  });
+  [...trackList.querySelectorAll('.info-btn')].forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      playClick();
+      openInfoEditor(parseInt(el.dataset.info));
+    };
+  });
+}
+
+function renderCoverflow(){
+  const track = document.getElementById('coverflow-track');
+  const titleEl = document.getElementById('coverflow-title');
+  const artistEl = document.getElementById('coverflow-artist');
+  const albums = getAlbums();
+
+  if (albums.length === 0){
+    track.innerHTML = '';
+    titleEl.textContent = 'No albums yet';
+    artistEl.textContent = 'Import music in Settings to see cover flow';
+    return;
+  }
+  if (selectedAlbumIndex < 0 || selectedAlbumIndex >= albums.length) selectedAlbumIndex = 0;
+
+  const center = selectedAlbumIndex;
+  const range = 2;
+  let html = '';
+  for (let offset = -range; offset <= range; offset++){
+    const idx = center + offset;
+    if (idx < 0 || idx >= albums.length) continue;
+    const a = albums[idx];
+    const abs = Math.abs(offset);
+    const scale = offset === 0 ? 1 : (abs === 1 ? 0.72 : 0.55);
+    const spacing = offset === 0 ? 0 : (abs === 1 ? 78 : 118);
+    const rotate = offset === 0 ? 0 : (offset < 0 ? 42 : -42);
+    const z = 10 - abs;
+    const opacity = abs >= range ? 0.35 : 1;
+    const xOffset = spacing * Math.sign(offset);
+    html += '<img class="cf-cover" data-idx="' + idx + '" src="' + (a.cover || placeholderCover()) + '"' +
+      ' style="transform:translateX(calc(-50% + ' + xOffset + 'px)) rotateY(' + rotate + 'deg) scale(' + scale + '); z-index:' + z + '; opacity:' + opacity + ';">';
+  }
+  track.innerHTML = html;
+  [...track.querySelectorAll('.cf-cover')].forEach(el => {
+    el.onclick = () => {
+      const idx = parseInt(el.dataset.idx);
+      if (idx === selectedAlbumIndex) openAlbum(idx);
+      else { selectedAlbumIndex = idx; render(); }
+    };
+  });
+
+  const a = albums[center];
+  titleEl.textContent = a.album;
+  artistEl.textContent = a.artist + '  ·  ' + a.indices.length + ' song' + (a.indices.length === 1 ? '' : 's');
+}
+
+function openAlbum(idx){
+  const albums = getAlbums();
+  if (idx < 0 || idx >= albums.length) return;
+  openAlbumKey = albums[idx].key;
+  selectedIndex = albums[idx].indices[0];
+  showView('albumtracks');
+  render();
+}
+
+function renderAlbumTracks(){
+  const albums = getAlbums();
+  const album = albums.find(a => a.key === openAlbumKey);
+  const listEl = document.getElementById('album-track-list');
+  if (!album) { listEl.innerHTML = '<div class="empty-msg">Album not found.</div>'; return; }
+
+  document.getElementById('albumtracks-title').textContent = album.album;
+
+  listEl.innerHTML = album.indices.map((li, n) => {
+    const t = library[li];
+    return '<div class="list-item' + (li === selectedIndex ? ' selected' : '') + '" data-idx="' + li + '">' +
+      '<span class="track-num">' + (parseTrackNo(t.trackNo) !== null ? parseTrackNo(t.trackNo) : '–') + '</span>' +
+      '<div class="meta">' +
+        '<div class="title">' + escapeHtml(t.title) + '</div>' +
+        '<div class="sub">' + escapeHtml(t.artist) + '</div>' +
+      '</div>' +
+      '<button class="info-btn" data-info="' + li + '" title="Get Info">&#9432;</button>' +
+    '</div>';
+  }).join('');
+
+  [...listEl.querySelectorAll('.list-item')].forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest('.info-btn')) return;
+      selectedIndex = parseInt(el.dataset.idx);
+      render();
+      playIndex(selectedIndex);
+    };
+  });
+  [...listEl.querySelectorAll('.info-btn')].forEach(el => {
+    el.onclick = (e) => { e.stopPropagation(); playClick(); openInfoEditor(parseInt(el.dataset.info)); };
+  });
+}
+
+function moveSelection(delta){
+  if (library.length === 0) return;
+
+  if (currentView === 'albums') {
+    const albums = getAlbums();
+    if (!albums.length) return;
+    selectedAlbumIndex = Math.max(0, Math.min(albums.length - 1, selectedAlbumIndex + delta));
+    render();
+    return;
+  }
+
+  if (currentView === 'albumtracks') {
+    const albums = getAlbums();
+    const album = albums.find(a => a.key === openAlbumKey);
+    if (!album) return;
+    const pos = album.indices.indexOf(selectedIndex);
+    const next = Math.max(0, Math.min(album.indices.length - 1, (pos < 0 ? 0 : pos) + delta));
+    selectedIndex = album.indices[next];
+    render();
+    const el = document.querySelector('#album-track-list .list-item.selected');
+    if (el) el.scrollIntoView({ block: 'nearest' });
+    return;
+  }
+
+  if (selectedIndex === -1) selectedIndex = 0;
+  else selectedIndex = Math.max(0, Math.min(library.length - 1, selectedIndex + delta));
+  render();
+  const el = trackList.querySelector('.list-item.selected');
+  if (el) el.scrollIntoView({ block: 'nearest' });
+}
+
+function placeholderCover(){
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><rect width="30" height="30" fill="%23ccc"/></svg>'
+  );
+}
+
+function escapeHtml(s){
+  return (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function formatTime(sec){
+  if (!isFinite(sec) || sec < 0) sec = 0;
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function setStatus(msg, isInfo){
+  const el = document.getElementById('np-status');
+  el.textContent = msg || '';
+  el.classList.toggle('info', !!isInfo);
+}
+
+
+// ================= Playback engine =================
+// Two backends:
+//   'element'  — <audio> + blob: URL. REQUIRED for background playback and
+//                lock-screen controls on iOS. Works on any real web host.
+//   'webaudio' — decodes raw bytes. Used only where blob: URLs are blocked
+//                (the Claude artifact sandbox). Does NOT survive locking.
+// We try the element first and fall back automatically.
+
+let engine = 'element';
+let sourceNode = null;
+let gainNode = null;
+let playStartedAt = 0;
+let playOffset = 0;
+let isPlaying = false;
+let rafId = null;
+
+function ensureContext(){
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+
+function currentTrack(){
+  return currentIndex >= 0 ? library[currentIndex] : null;
+}
+
+function currentDuration(){
+  const t = currentTrack();
+  if (!t) return 0;
+  if (engine === 'element') return isFinite(audio.duration) ? audio.duration : 0;
+  return t.audioBuffer ? t.audioBuffer.duration : 0;
+}
+
+function currentPosition(){
+  if (engine === 'element') return audio.currentTime || 0;
+  if (!isPlaying) return playOffset;
+  return Math.min(currentDuration(), playOffset + (actx.currentTime - playStartedAt));
+}
+
+function trackBlobUrl(t){
+  if (t.blobUrl) return t.blobUrl;
+  try {
+    const src = t.file ? t.file : new Blob([t.arrayBuffer], { type: t.mimeType || 'audio/mpeg' });
+    t.blobUrl = URL.createObjectURL(src);
+    return t.blobUrl;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function decodeTrack(t){
+  if (t.audioBuffer) return t.audioBuffer;
+  if (!t.arrayBuffer && t.readyPromise) await t.readyPromise;
+  if (!t.arrayBuffer) throw new Error('No audio data available for this track.');
+  const ctx = ensureContext();
+  const copy = t.arrayBuffer.slice(0);
+  t.audioBuffer = await new Promise((resolve, reject) => {
+    const ret = ctx.decodeAudioData(copy, resolve, reject);
+    if (ret && ret.then) ret.then(resolve).catch(reject);
+  });
+  return t.audioBuffer;
+}
+
+function stopSource(){
+  if (engine === 'element') {
+    audio.pause();
+  }
+  if (sourceNode) {
+    try { sourceNode.onended = null; sourceNode.stop(); } catch (e) {}
+    try { sourceNode.disconnect(); } catch (e) {}
+    sourceNode = null;
+  }
+  isPlaying = false;
+  cancelAnimationFrame(rafId);
+}
+
+function startFrom(offset){
+  const t = currentTrack();
+  if (!t || !t.audioBuffer) return;
+  const ctx = ensureContext();
+  stopSource();
+
+  sourceNode = ctx.createBufferSource();
+  sourceNode.buffer = t.audioBuffer;
+  gainNode = ctx.createGain();
+  sourceNode.connect(gainNode).connect(ctx.destination);
+
+  playOffset = Math.max(0, Math.min(offset, t.audioBuffer.duration - 0.01));
+  playStartedAt = ctx.currentTime;
+  isPlaying = true;
+
+  sourceNode.onended = () => {
+    if (isPlaying && currentPosition() >= currentDuration() - 0.15) playIndex(currentIndex + 1);
+  };
+
+  sourceNode.start(0, playOffset);
+  updateStatusPlayIcon();
+  tickProgress();
+}
+
+function tickProgress(){
+  const dur = currentDuration();
+  if (dur) {
+    const pos = currentPosition();
+    const pct = (pos / dur) * 100;
+    document.getElementById('np-progress').style.width = pct + '%';
+    document.getElementById('np-dot').style.left = pct + '%';
+    document.getElementById('np-time-elapsed').textContent = formatTime(pos);
+    document.getElementById('np-time-remaining').textContent = '-' + formatTime(dur - pos);
+  }
+  if (isPlaying) rafId = requestAnimationFrame(tickProgress);
+}
+
+// ---- Lock screen / control centre integration ----
+function updateMediaSession(){
+  if (!('mediaSession' in navigator)) return;
+  const t = currentTrack();
+  if (!t) return;
+  try {
+    const artwork = [];
+    if (t.cover) {
+      artwork.push({ src: t.cover, sizes: '512x512', type: t.cover.indexOf('image/png') > -1 ? 'image/png' : 'image/jpeg' });
+    }
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: t.title || 'Unknown Title',
+      artist: t.artist || 'Unknown Artist',
+      album: t.album || '',
+      artwork
+    });
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+  } catch (e) { /* MediaMetadata unsupported */ }
+}
+
+function setupMediaSessionHandlers(){
+  if (!('mediaSession' in navigator)) return;
+  const set = (action, fn) => { try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) {} };
+  set('play', () => { if (!isPlaying) togglePlay(); });
+  set('pause', () => { if (isPlaying) togglePlay(); });
+  set('previoustrack', () => playIndex(currentIndex - 1));
+  set('nexttrack', () => playIndex(currentIndex + 1));
+  set('seekbackward', (d) => seekBy(-(d && d.seekOffset ? d.seekOffset : 10)));
+  set('seekforward', (d) => seekBy(d && d.seekOffset ? d.seekOffset : 10));
+  set('seekto', (d) => { if (d && typeof d.seekTime === 'number') seekTo(d.seekTime); });
+}
+
+async function playIndex(i){
+  if (i < 0 || i >= library.length) return;
+  currentIndex = i;
+  selectedIndex = i;
+  const t = library[i];
+  updateNowPlaying();
+  showView('now');
+  setStatus('');
+
+  if (engine === 'element') {
+    if (!t.arrayBuffer && !t.file && t.readyPromise) await t.readyPromise;
+    const url = trackBlobUrl(t);
+    if (url) {
+      audio.src = url;
+      audio.load();
+      try {
+        await audio.play();
+        isPlaying = true;
+        updateStatusPlayIcon();
+        updateMediaSession();
+        tickProgress();
+        return;
+      } catch (err) {
+        if (err && err.name === 'NotAllowedError') {
+          setStatus('Tap ▶ to start playback.', true);
+          return;
+        }
+        // fall through to Web Audio
+      }
+    }
+    engine = 'webaudio';
+    setStatus('Using fallback audio (background play unavailable here).', true);
+  }
+
+  // Web Audio path
+  ensureContext();
+  try {
+    if (!t.audioBuffer) setStatus('Decoding…', true);
+    await decodeTrack(t);
+    setStatus('');
+    startFrom(0);
+    updateMediaSession();
+  } catch (err) {
+    console.error('Decode failed', err);
+    setStatus('Could not play this file: ' + (err.message || err.name || 'unknown error'));
+  }
+}
+
+function togglePlay(){
+  if (currentIndex === -1){ playIndex(0); return; }
+  const t = currentTrack();
+
+  if (engine === 'element') {
+    if (audio.paused) {
+      audio.play().then(() => { isPlaying = true; updateStatusPlayIcon(); updateMediaSession(); tickProgress(); })
+                   .catch(e => setStatus('Could not resume: ' + e.message));
+    } else {
+      audio.pause();
+      isPlaying = false;
+      updateStatusPlayIcon();
+      updateMediaSession();
+    }
+    return;
+  }
+
+  if (!t || !t.audioBuffer) { playIndex(currentIndex); return; }
+  if (isPlaying) {
+    const pos = currentPosition();
+    stopSource();
+    playOffset = pos;
+    updateStatusPlayIcon();
+    updateMediaSession();
+  } else {
+    ensureContext();
+    startFrom(playOffset);
+    updateMediaSession();
+  }
+}
+
+function seekTo(target){
+  const dur = currentDuration();
+  if (!dur) return;
+  const clamped = Math.max(0, Math.min(dur - 0.05, target));
+  if (engine === 'element') {
+    audio.currentTime = clamped;
+    tickProgress();
+    return;
+  }
+  if (isPlaying) startFrom(clamped);
+  else { playOffset = clamped; tickProgress(); }
+}
+
+function seekBy(seconds){
+  seekTo(currentPosition() + seconds);
+}
+
+function updateNowPlaying(){
+  const t = library[currentIndex];
+  if (!t) return;
+  document.getElementById('np-cover').src = t.cover || placeholderCover();
+  document.getElementById('np-title').textContent = t.title;
+  document.getElementById('np-artist').textContent = t.artist;
+  document.getElementById('np-album').textContent = t.album || '—';
+  document.getElementById('np-count').textContent = (currentIndex + 1) + ' / ' + library.length;
+  updateMediaSession();
+}
+
+// Keep state in sync when the element backend drives playback
+audio.addEventListener('play', () => { isPlaying = true; updateStatusPlayIcon(); updateMediaSession(); tickProgress(); });
+audio.addEventListener('pause', () => { isPlaying = false; updateStatusPlayIcon(); updateMediaSession(); });
+audio.addEventListener('ended', () => { if (engine === 'element') playIndex(currentIndex + 1); });
+setupMediaSessionHandlers();
+
+// ---- iTunes-style metadata editor ----
+let editingIndex = -1;
+let pendingCover = null; // null = unchanged, '' = removed, string = new data URI
+
+function openInfoEditor(i){
+  if (i < 0 || i >= library.length) return;
+  editingIndex = i;
+  pendingCover = null;
+  const t = library[i];
+
+  document.getElementById('edit-title').value = t.title || '';
+  document.getElementById('edit-artist').value = t.artist === 'Unknown Artist' ? '' : (t.artist || '');
+  document.getElementById('edit-album').value = t.album || '';
+  document.getElementById('edit-albumartist').value = t.albumArtist || '';
+  document.getElementById('edit-composer').value = t.composer || '';
+  document.getElementById('edit-genre').value = t.genre || '';
+  document.getElementById('edit-year').value = t.year || '';
+  document.getElementById('edit-track').value = t.trackNo || '';
+  document.getElementById('edit-comments').value = t.comments || '';
+
+  showArtwork(t.cover);
+  switchTab('info');
+  document.getElementById('info-overlay').classList.add('open');
+}
+
+function showArtwork(src){
+  const img = document.getElementById('edit-cover-preview');
+  const empty = document.getElementById('art-empty');
+  if (src) {
+    img.src = src;
+    img.classList.add('shown');
+    empty.style.display = 'none';
+  } else {
+    img.removeAttribute('src');
+    img.classList.remove('shown');
+    empty.style.display = '';
+  }
+}
+
+function switchTab(which){
+  const infoTab = document.querySelector('.itunes-tab');
+  const artTab = document.getElementById('tab-artwork');
+  const isInfo = which === 'info';
+  infoTab.classList.toggle('active', isInfo);
+  artTab.classList.toggle('active', !isInfo);
+  document.getElementById('pane-info').style.display = isInfo ? '' : 'none';
+  document.getElementById('pane-artwork').style.display = isInfo ? 'none' : '';
+}
+
+function closeInfoEditor(){
+  document.getElementById('info-overlay').classList.remove('open');
+  editingIndex = -1;
+  pendingCover = null;
+}
+
+document.querySelector('.itunes-tab').onclick = () => switchTab('info');
+document.getElementById('tab-artwork').onclick = () => switchTab('artwork');
+document.getElementById('btn-info-cancel').onclick = closeInfoEditor;
+document.getElementById('btn-choose-art').onclick = () => document.getElementById('art-input').click();
+document.getElementById('btn-remove-art').onclick = () => { pendingCover = ''; showArtwork(null); };
+
+document.getElementById('art-input').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { pendingCover = reader.result; showArtwork(pendingCover); };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+document.getElementById('btn-info-ok').onclick = async () => {
+  if (editingIndex < 0) return;
+  const t = library[editingIndex];
+  const val = id => document.getElementById(id).value.trim();
+
+  t.title = val('edit-title') || t.title;
+  t.artist = val('edit-artist') || 'Unknown Artist';
+  t.album = val('edit-album');
+  t.albumArtist = val('edit-albumartist');
+  t.composer = val('edit-composer');
+  t.genre = val('edit-genre');
+  t.year = val('edit-year');
+  t.trackNo = val('edit-track');
+  t.comments = val('edit-comments');
+  if (pendingCover !== null) t.cover = pendingCover || null;
+
+  const idx = editingIndex;
+  closeInfoEditor();
+  render();
+  if (currentIndex === idx) updateNowPlaying();
+  await saveTrackMetaToStorage(t);
+};
+
+// Rewrites only the metadata record — the audio chunks are untouched
+async function saveTrackMetaToStorage(track){
+  if (!storageAvailable) return;
+  try {
+    if (backend === 'idb') {
+      await idbPut({
+        id: track.id, audio: track.arrayBuffer,
+        mimeType: track.mimeType || 'audio/mpeg',
+        title: track.title, artist: track.artist, album: track.album,
+        albumArtist: track.albumArtist, composer: track.composer, genre: track.genre,
+        year: track.year, trackNo: track.trackNo, comments: track.comments, cover: track.cover
+      });
+    } else {
+      if (!track.chunkCount) return;
+      await setWithRetry('track:' + track.id, JSON.stringify({
+        id: track.id, title: track.title, artist: track.artist, album: track.album,
+        albumArtist: track.albumArtist, composer: track.composer, genre: track.genre,
+        year: track.year, trackNo: track.trackNo, comments: track.comments,
+        cover: track.cover, chunkCount: track.chunkCount
+      }));
+    }
+    track.saveState = 'saved';
+  } catch (e) {
+    console.error('Metadata save failed', e);
+    track.saveState = 'failed';
+    storageNote = 'Could not save info for "' + track.title + '"';
+  }
+  updateStoragePanel();
+}
+
+// ---- Persistent storage ----
+const CHUNK_SIZE = 512 * 1024; // conservative chunk to stay under per-key cap
+let storageAvailable = null;   // null = unknown, true/false once tested
+let storageNote = '';
+let storageDiag = [];
+
+function bytesToBase64(buffer){
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const STEP = 0x8000;
+  for (let i = 0; i < bytes.length; i += STEP) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + STEP));
+  }
+  return btoa(binary);
+}
+
+function base64ToBytes(b64){
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+function updateStoragePanel(){
+  const el = document.getElementById('storage-panel');
+  if (!el) return;
+  const saved = library.filter(t => t.saveState === 'saved').length;
+  const saving = library.filter(t => t.saveState === 'saving').length;
+  const failed = library.filter(t => t.saveState === 'failed').length;
+
+  let statusHtml;
+  if (storageAvailable === null) statusHtml = '<span>Checking…</span>';
+  else if (storageAvailable) statusHtml = '<span class="ok">Available</span>';
+  else statusHtml = '<span class="bad">Unavailable</span>';
+
+  el.innerHTML =
+    '<div class="row"><span>Device storage</span>' + statusHtml + '</div>' +
+    '<div class="row"><span>Tracks in library</span><span>' + library.length + '</span></div>' +
+    '<div class="row"><span>Saved to device</span><span class="' + ((saved === library.length && library.length) ? 'ok' : '') + '">' + saved + '</span></div>' +
+    (saving ? '<div class="row"><span>Saving now</span><span class="saving">' + saving + '</span></div>' : '') +
+    (failed ? '<div class="row"><span>Failed to save</span><span class="bad">' + failed + '</span></div>' : '') +
+    (storageNote ? '<div style="margin-top:5px;color:#666;">' + escapeHtml(storageNote) + '</div>' : '') +
+    (storageDiag && storageDiag.length
+      ? '<div style="margin-top:6px;border-top:1px solid #d5d5d5;padding-top:5px;">' +
+        storageDiag.map(function(d){
+          var bad = /FAILED|MISSING/.test(d[1]);
+          return '<div class="row"><span>' + escapeHtml(d[0]) + '</span><span class="' + (bad ? 'bad' : '') + '">' + escapeHtml(d[1]) + '</span></div>';
+        }).join('') + '</div>'
+      : '');
+}
+
+// Verify storage actually works before relying on it
+// ================= Storage backend =================
+// Preference order:
+//   1. IndexedDB — stores raw bytes natively, no size cap, no base64 bloat.
+//   2. window.storage — the artifact host API (blocked inside the Claude
+//      artifact viewer, but present in some hosts).
+// Inside the Claude artifact preview both are typically unavailable, so the
+// library lives in memory only. Deploy the file (Vercel, GitHub Pages, or
+// just open it directly in Safari/Chrome) and IndexedDB takes over.
+
+const DB_NAME = 'apg-ipod-library';
+const DB_STORE = 'tracks';
+let idb = null;
+let backend = 'none'; // 'idb' | 'host' | 'none'
+
+function openIDB(){
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) return reject(new Error('IndexedDB not available'));
+    let req;
+    try { req = window.indexedDB.open(DB_NAME, 1); }
+    catch (e) { return reject(e); }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath: 'id' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+    req.onblocked = () => reject(new Error('IndexedDB blocked'));
+    setTimeout(() => reject(new Error('IndexedDB open timed out')), 3000);
+  });
+}
+
+function idbTx(mode, fn){
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction(DB_STORE, mode);
+    const store = tx.objectStore(DB_STORE);
+    let result;
+    try { result = fn(store); } catch (e) { return reject(e); }
+    tx.oncomplete = () => resolve(result && result.result !== undefined ? result.result : result);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+  });
+}
+
+function idbPut(record){ return idbTx('readwrite', s => s.put(record)); }
+function idbGetAll(){
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction(DB_STORE, 'readonly');
+    const req = tx.objectStore(DB_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+function idbClear(){ return idbTx('readwrite', s => s.clear()); }
+
+// ---- Backend detection ----
+async function testStorage(){
+  storageDiag = [];
+
+  // Try IndexedDB first
+  try {
+    idb = await openIDB();
+    // prove a real write works
+    await idbPut({ id: '__selftest', probe: new Uint8Array([1,2,3]).buffer });
+    await idbTx('readwrite', s => s.delete('__selftest'));
+    backend = 'idb';
+    storageAvailable = true;
+    storageDiag.push(['IndexedDB', 'working']);
+    storageNote = '';
+    updateStoragePanel();
+    return;
+  } catch (e) {
+    idb = null;
+    storageDiag.push(['IndexedDB', 'unavailable: ' + (e.message || e)]);
+  }
+
+  // Fall back to the host storage API
+  if (typeof window.storage !== 'undefined' && window.storage) {
+    storageDiag.push(['host storage API', 'present']);
+    try {
+      await window.storage.set('selftest', 'ok', false);
+      const back = await window.storage.get('selftest', false);
+      await window.storage.delete('selftest', false);
+      if (back && back.value === 'ok') {
+        backend = 'host';
+        storageAvailable = true;
+        storageDiag.push(['host set/get', 'working']);
+        storageNote = '';
+        updateStoragePanel();
+        return;
+      }
+      storageDiag.push(['host set/get', 'unexpected response']);
+    } catch (e) {
+      storageDiag.push(['host set()', 'FAILED: ' + (e.message || e)]);
+    }
+  } else {
+    storageDiag.push(['host storage API', 'MISSING']);
+  }
+
+  backend = 'none';
+  storageAvailable = false;
+  storageNote = 'Saving is blocked in this preview. Download this file and open it in your browser (or deploy it) and your library will save automatically.';
+  updateStoragePanel();
+}
+
+async function setWithRetry(key, value, attempts){
+  attempts = attempts || 3;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await window.storage.set(key, value, false);
+    } catch (e) {
+      if (i === attempts - 1) throw e;
+      await new Promise(r => setTimeout(r, 400 * (i + 1))); // back off on rate limits
+    }
+  }
+}
+
+async function saveTrackToStorage(track){
+  if (storageAvailable === null) await testStorage();
+  if (!storageAvailable) { track.saveState = 'failed'; updateStoragePanel(); return; }
+  if (!track.arrayBuffer) return;
+
+  track.saveState = 'saving';
+  updateStoragePanel();
+  try {
+    if (backend === 'idb') {
+      // Raw bytes straight in — no base64, no chunking, no size cap
+      await idbPut({
+        id: track.id,
+        audio: track.arrayBuffer,
+        mimeType: track.mimeType || 'audio/mpeg',
+        title: track.title,
+        artist: track.artist,
+        album: track.album,
+        albumArtist: track.albumArtist,
+        composer: track.composer,
+        genre: track.genre,
+        year: track.year,
+        trackNo: track.trackNo,
+        comments: track.comments,
+        cover: track.cover
+      });
+    } else {
+      const b64 = bytesToBase64(track.arrayBuffer);
+      const chunks = [];
+      for (let i = 0; i < b64.length; i += CHUNK_SIZE) chunks.push(b64.slice(i, i + CHUNK_SIZE));
+      for (let c = 0; c < chunks.length; c++) await setWithRetry('audio:' + track.id + ':' + c, chunks[c]);
+      track.chunkCount = chunks.length;
+      await setWithRetry('track:' + track.id, JSON.stringify({
+        id: track.id, title: track.title, artist: track.artist, album: track.album,
+        albumArtist: track.albumArtist, composer: track.composer, genre: track.genre,
+        year: track.year, trackNo: track.trackNo, comments: track.comments,
+        cover: track.cover, chunkCount: chunks.length
+      }));
+      await addToIndex(track.id);
+    }
+    track.saveState = 'saved';
+    storageNote = '';
+  } catch (e) {
+    console.error('Save failed for', track.title, e);
+    track.saveState = 'failed';
+    storageNote = 'Could not save "' + track.title + '" — ' + (e.message || 'storage error');
+  }
+  updateStoragePanel();
+}
+
+async function readIndex(){
+  try {
+    const rec = await window.storage.get('library-index', false);
+    if (rec && rec.value) return JSON.parse(rec.value);
+  } catch (e) { /* fall through */ }
+  try {
+    const res = await window.storage.list('track:', false);
+    const keys = (res && res.keys) ? res.keys : [];
+    return keys.map(k => k.replace(/^track:/, ''));
+  } catch (e) { return []; }
+}
+
+async function writeIndex(ids){ await setWithRetry('library-index', JSON.stringify(ids)); }
+
+async function addToIndex(id){
+  const ids = await readIndex();
+  if (!ids.includes(id)) { ids.push(id); await writeIndex(ids); }
+}
+
+async function loadLibraryFromStorage(){
+  if (storageAvailable === null) await testStorage();
+  if (!storageAvailable) { updateStoragePanel(); return; }
+
+  try {
+    if (backend === 'idb') {
+      const records = await idbGetAll();
+      for (const r of records) {
+        if (r.id === '__selftest' || !r.audio) continue;
+        library.push({
+          id: r.id, file: null,
+          mimeType: r.mimeType || 'audio/mpeg',
+          arrayBuffer: r.audio, audioBuffer: null,
+          title: r.title, artist: r.artist, album: r.album,
+          albumArtist: r.albumArtist || '', composer: r.composer || '',
+          genre: r.genre || '', year: r.year || '', trackNo: r.trackNo || '',
+          comments: r.comments || '', cover: r.cover, saveState: 'saved'
+        });
+      }
+    } else {
+      const ids = await readIndex();
+      for (const id of ids) {
+        try {
+          const rec = await window.storage.get('track:' + id, false);
+          if (!rec || !rec.value) continue;
+          const meta = JSON.parse(rec.value);
+          let b64 = ''; let complete = true;
+          for (let c = 0; c < meta.chunkCount; c++) {
+            const part = await window.storage.get('audio:' + meta.id + ':' + c, false);
+            if (part && part.value) b64 += part.value; else { complete = false; break; }
+          }
+          if (!complete) continue;
+          library.push({
+            id: meta.id, file: null,
+            arrayBuffer: base64ToBytes(b64), audioBuffer: null,
+            title: meta.title, artist: meta.artist, album: meta.album,
+            albumArtist: meta.albumArtist || '', composer: meta.composer || '',
+            genre: meta.genre || '', year: meta.year || '', trackNo: meta.trackNo || '',
+            comments: meta.comments || '', cover: meta.cover,
+            chunkCount: meta.chunkCount, saveState: 'saved'
+          });
+        } catch (e) { console.warn('Skipping track', id, e); }
+      }
+    }
+    render();
+  } catch (e) {
+    storageNote = 'Could not read saved library: ' + (e.message || e);
+  }
+  updateStoragePanel();
+}
+
+async function clearLibrary(){
+  try {
+    if (backend === 'idb' && idb) {
+      await idbClear();
+    } else if (backend === 'host') {
+      const ids = await readIndex();
+      for (const id of ids) {
+        try {
+          const rec = await window.storage.get('track:' + id, false);
+          const meta = rec && rec.value ? JSON.parse(rec.value) : null;
+          const n = meta ? meta.chunkCount : 0;
+          for (let c = 0; c < n; c++) await window.storage.delete('audio:' + id + ':' + c, false);
+          await window.storage.delete('track:' + id, false);
+        } catch (e) { console.warn('Could not delete', id, e); }
+      }
+      await writeIndex([]);
+    }
+    library = [];
+    currentIndex = -1;
+    selectedIndex = -1;
+    stopSource();
+    playOffset = 0;
+    storageNote = '';
+    render();
+    updateStoragePanel();
+    showView('menu');
+  } catch (e) {
+    console.error('Clear failed', e);
+    storageNote = 'Clear failed: ' + (e.message || e);
+    updateStoragePanel();
+  }
+}
+
+document.getElementById('btn-test-storage').onclick = btnClick(() => {
+  storageAvailable = null;
+  updateStoragePanel();
+  testStorage();
+});
+
+document.getElementById('btn-clear-library').onclick = btnClick(() => {
+  if (confirm('Delete all saved music from this device?')) clearLibrary();
+});
+
+// ---- Init ----
+updateStatusPlayIcon();
+updateStatusPlayIcon();
+showView('menu');
+loadLibraryFromStorage();
+</script>
+
+</body>
+</html>
