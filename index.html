@@ -6,9 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="APG iPod">
+<meta name="apple-mobile-web-app-title" content="JPOD">
 <meta name="theme-color" content="#111113">
-<title>APG Library — iPod Style</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>JPOD</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
 <style>
   :root{
@@ -244,6 +248,7 @@
   .np-count{font-size:11px;color:#aaa;margin-top:10px;}
   .np-scrub-row{
     display:flex;align-items:center;gap:8px;
+    touch-action:none;
     padding:10px 14px 0;
     margin-top:auto;
   }
@@ -373,7 +378,7 @@
   #art-input{display:none;}
 
   .itunes-footer{
-    display:flex;justify-content:flex-end;gap:8px;
+    display:flex;align-items:center;gap:8px;
     padding:10px 14px;
     background:#ededed;
     border-top:1px solid #c4c4c4;
@@ -389,12 +394,113 @@
     font-family:inherit;
   }
   .itunes-btn:active{background:linear-gradient(180deg,#dcdcdc,#cfcfcf);}
+  .itunes-btn.danger{color:#b3261e;}
+  .fld select{
+    flex:1;min-width:0;border:1px solid #a9a9a9;border-radius:3px;
+    padding:4px 6px;font-size:12px;background:#fff;font-family:inherit;
+  }
+  .np-icon.on{color:var(--accent);font-weight:700;}
+  .np-icon{cursor:pointer;}
   .itunes-btn.primary{
     background:linear-gradient(180deg,#5a9ee0,#3b7fc4);
     border-color:#2f6ba8;color:#fff;font-weight:600;
   }
   .itunes-btn.primary:active{background:linear-gradient(180deg,#3b7fc4,#2f6ba8);}
 
+
+  /* ---- Extras, games, theming ---- */
+  #brick-canvas{
+    display:block;margin:6px auto 0;background:#e9e9e7;border-radius:3px;
+  }
+  .game-hint{
+    text-align:center;font-size:10px;color:#888;padding:6px 10px;
+  }
+  .quiz-body{padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .quiz-status{font-size:12px;color:#333;text-align:center;min-height:32px;}
+  .quiz-options{display:flex;flex-direction:column;gap:6px;flex:1;}
+  .quiz-opt{
+    background:#fff;border:1px solid #c8c8c8;border-radius:5px;
+    padding:8px;font-size:12px;text-align:left;cursor:pointer;font-family:inherit;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .quiz-opt.right{background:#d7f0d9;border-color:#4c9a51;}
+  .quiz-opt.wrong{background:#f6d6d3;border-color:#c0392b;}
+
+  .settings-group{padding:4px 10px 0;}
+  .settings-label{font-size:11px;color:#666;margin-bottom:4px;}
+  .theme-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .theme-dot{
+    width:26px;height:26px;border-radius:50%;
+    border:2px solid transparent;cursor:pointer;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
+  }
+  .theme-dot.active{border-color:var(--accent);}
+  .toggle-row{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12px;color:#333;margin-top:10px;
+  }
+
+
+
+  /* ---- Dark screen mode ---- */
+  body.dark-ui .screen{ background:#101012; }
+  body.dark-ui .statusbar{ background:#17171a; color:#e6e6e8; border-bottom-color:#2a2a2e; }
+  body.dark-ui .status-play-icon{ border-left-color:#e6e6e8; }
+  body.dark-ui .status-play-icon.paused{
+    background:linear-gradient(#e6e6e8,#e6e6e8) left/3px 100% no-repeat,
+               linear-gradient(#e6e6e8,#e6e6e8) right/3px 100% no-repeat;
+  }
+  body.dark-ui .battery-body{ border-color:#e6e6e8; }
+  body.dark-ui .battery-fill, body.dark-ui .battery-nub{ background:#e6e6e8; }
+  body.dark-ui .sub-header, body.dark-ui .lib-header{
+    background:#17171a; color:#e6e6e8; border-bottom-color:#2a2a2e;
+  }
+  body.dark-ui .menu-item{ color:#e6e6e8; border-bottom-color:#232327; }
+  body.dark-ui .menu-item .chev{ color:#666; }
+  body.dark-ui .list-item{ color:#e6e6e8; border-bottom-color:#232327; }
+  body.dark-ui .list-item .sub{ color:#8d8d93; }
+  body.dark-ui .track-num{ color:#7a7a80; }
+  body.dark-ui .np-title{ color:#f2f2f4; }
+  body.dark-ui .np-artist{ color:#c9c9ce; }
+  body.dark-ui .np-album{ color:#8d8d93; }
+  body.dark-ui .np-count, body.dark-ui .np-time{ color:#6e6e74; }
+  body.dark-ui .np-header{ border-bottom-color:#2a2a2e; }
+  body.dark-ui .progress{ background:#333338; }
+  body.dark-ui .progress-fill{ background:#9a9aa0; }
+  body.dark-ui .progress-dot{ background:#f0f0f2; }
+  body.dark-ui .coverflow-title{ color:#f2f2f4; }
+  body.dark-ui .coverflow-artist{ color:#8d8d93; }
+  body.dark-ui .empty-msg{ color:#7a7a80; }
+  body.dark-ui .storage-panel{ background:#1d1d21; color:#d5d5da; }
+  body.dark-ui .settings-label{ color:#8d8d93; }
+  body.dark-ui .toggle-row{ color:#d5d5da; }
+  body.dark-ui #brick-canvas{ background:#1d1d21; }
+  body.dark-ui .quiz-status{ color:#d5d5da; }
+  body.dark-ui .quiz-opt{ background:#1d1d21; border-color:#35353b; color:#e6e6e8; }
+  body.dark-ui .back-btn{ color:#5aa0ea; }
+  .scroll-letter{
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:96px; height:96px; border-radius:14px;
+    background:rgba(20,20,22,.78);
+    color:#fff; font-size:52px; font-weight:700;
+    display:none; align-items:center; justify-content:center;
+    z-index:40; pointer-events:none;
+    text-transform:uppercase;
+  }
+  .scroll-letter.shown{ display:flex; }
+
+  .cover-full{
+    position:absolute; inset:0; z-index:45;
+    background:#000;
+    display:none; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .cover-full.shown{ display:flex; }
+  .cover-full img{ width:100%; height:100%; object-fit:contain; }
+  .np-chev{ font-size:10px; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .now-playing-row span:first-child{ font-weight:600; }
+  .cover{ cursor:pointer; }
   .np-status{
     font-size:9px;
     color:#c0392b;
@@ -406,7 +512,12 @@
   .np-status.info{color:#777;}
   .progress{
     flex:1;height:3px;background:#ddd;border-radius:2px;position:relative;
+    cursor:pointer;
   }
+  .progress::before{
+    content:'';position:absolute;left:0;right:0;top:-14px;bottom:-14px;
+  }
+  .progress-dot{transition:none;}
   .progress-fill{height:100%;background:#8a8a8a;border-radius:2px;width:0%;}
   .progress-dot{
     position:absolute;top:50%;left:0%;
@@ -424,7 +535,7 @@
   }
   .wheel{
     width:230px;height:230px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #4a4a4d, #1c1c1e 70%);
+    background:radial-gradient(circle at 35% 30%, var(--wheel-1,#4a4a4d), var(--wheel-2,#1c1c1e) 70%);
     position:relative;
     box-shadow:0 6px 14px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
   }
@@ -432,7 +543,7 @@
     position:absolute;
     font-size:12px;
     font-weight:700;
-    color:#8a8a8e;
+    color:var(--glyph,#8a8a8e);
     letter-spacing:1px;
     user-select:none;
     cursor:pointer;
@@ -442,12 +553,12 @@
   .lbl-back{left:18px;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
   .lbl-play{bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;}
   .lbl-fwd .bar, .lbl-back .bar{
-    width:2px;height:13px;background:#8a8a8e;display:inline-block;
+    width:2px;height:13px;background:var(--glyph,#8a8a8e);display:inline-block;
   }
   .center-btn{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
     width:92px;height:92px;border-radius:50%;
-    background:linear-gradient(180deg,#333336,#18181a);
+    background:linear-gradient(180deg,var(--hub-1,#333336),var(--hub-2,#18181a));
     box-shadow:inset 0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04);
     cursor:pointer;
     user-select:none;
@@ -456,10 +567,10 @@
     width:0;height:0;
     border-top:8px solid transparent;
     border-bottom:8px solid transparent;
-    border-left:13px solid #8a8a8e;
+    border-left:13px solid var(--glyph,#8a8a8e);
   }
   .pause-bars{display:flex;gap:3px;}
-  .pause-bars span{width:4px;height:16px;background:#8a8a8e;display:inline-block;}
+  .pause-bars span{width:4px;height:16px;background:var(--glyph,#8a8a8e);display:inline-block;}
   .wheel{touch-action:none;user-select:none;}
   .list-item.selected{background:var(--accent);}
   .list-item.selected .title,.list-item.selected .sub{color:#fff;}
@@ -482,6 +593,8 @@
       </span>
     </div>
     <div class="screen-body">
+      <div class="scroll-letter" id="scroll-letter"></div>
+      <div class="cover-full" id="cover-full"><img id="cover-full-img" src="" alt=""></div>
 
       <!-- MENU VIEW (home) -->
       <div class="view active" id="view-menu">
@@ -493,7 +606,7 @@
         <div class="sub-header">
           <button class="icon-btn back-btn" data-back>‹</button>
           <span>Songs</span>
-          <span></span>
+          <button class="icon-btn" id="btn-shuffle-songs" title="Shuffle all">&#8644;</button>
         </div>
         <div class="list" id="track-list">
           <div class="empty-msg">No tracks yet. Go to Settings to import music — covers &amp; tags load automatically.</div>
@@ -514,14 +627,59 @@
         </div>
       </div>
 
-      <!-- ALBUM TRACKS VIEW -->
+      <!-- BROWSE VIEW (artists / genres / playlists) -->
+      <div class="view" id="view-browse">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span id="browse-title">Browse</span>
+          <button class="icon-btn" id="btn-new-playlist" style="visibility:hidden;">+</button>
+        </div>
+        <div class="list" id="browse-list"></div>
+      </div>
+
+      <!-- TRACK LIST VIEW (album / artist / genre / playlist contents) -->
       <div class="view" id="view-albumtracks">
         <div class="sub-header">
-          <button class="icon-btn back-btn" data-back-albums>‹</button>
+          <button class="icon-btn back-btn" id="tracklist-back">&#8249;</button>
           <span id="albumtracks-title">Album</span>
-          <span></span>
+          <button class="icon-btn" id="btn-edit-all" title="Edit all">&#9998;</button>
         </div>
         <div class="list" id="album-track-list"></div>
+      </div>
+
+      <!-- EXTRAS VIEW -->
+      <div class="view" id="view-extras">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span>Extras</span>
+          <span></span>
+        </div>
+        <div class="list" id="extras-list"></div>
+      </div>
+
+      <!-- BRICK GAME -->
+      <div class="view" id="view-brick">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span>Brick</span>
+          <span id="brick-score">0</span>
+        </div>
+        <canvas id="brick-canvas" width="300" height="260"></canvas>
+        <div class="game-hint" id="brick-hint">Spin the wheel to move &#183; center to launch</div>
+      </div>
+
+      <!-- MUSIC QUIZ -->
+      <div class="view" id="view-quiz">
+        <div class="sub-header">
+          <button class="icon-btn back-btn" data-back>&#8249;</button>
+          <span>Music Quiz</span>
+          <span id="quiz-score">0</span>
+        </div>
+        <div class="quiz-body">
+          <div class="quiz-status" id="quiz-status">Tap Start to play a clip</div>
+          <div class="quiz-options" id="quiz-options"></div>
+          <button class="import-btn" id="btn-quiz-start">Start</button>
+        </div>
       </div>
 
       <!-- SETTINGS VIEW -->
@@ -537,7 +695,17 @@
         </div>
         <input type="file" id="file-input" accept="audio/*,.mp3,.m4a,.wav,.flac,.aac,.ogg,.wma,audio/mpeg,audio/mp4,audio/x-m4a" multiple>
         <div class="empty-msg" style="text-align:left;">Your library is saved on this device and reloads automatically next time you open the app.</div>
+        <div class="settings-group">
+          <div class="settings-label">Color</div>
+          <div class="theme-row" id="theme-row"></div>
+          <label class="toggle-row"><span>Dark screen</span><input type="checkbox" id="dark-toggle"></label>
+        </div>
         <div class="storage-panel" id="storage-panel">Checking storage…</div>
+        <div class="import-row">
+          <button class="import-btn secondary" id="btn-backup">Back Up</button>
+          <button class="import-btn secondary" id="btn-restore">Restore</button>
+        </div>
+        <input type="file" id="restore-input" accept=".json,application/json" style="display:none;">
         <div class="import-row">
           <button class="import-btn secondary" id="btn-test-storage">Test Storage</button>
           <button class="import-btn secondary" id="btn-clear-library">Clear Saved Library</button>
@@ -587,11 +755,12 @@
   </div>
 </div>
 
+
 <div class="itunes-overlay" id="info-overlay">
   <div class="itunes-window">
     <div class="itunes-titlebar">
       <span class="tl-dots"><i class="d red"></i><i class="d yellow"></i><i class="d green"></i></span>
-      <span class="tl-title">Item Information</span>
+      <span class="tl-title" id="tl-title-text">Item Information</span>
     </div>
     <div class="itunes-tabs">
       <button class="itunes-tab active">Info</button>
@@ -616,6 +785,9 @@
         <div class="fld half"><label>Track</label><input id="edit-track" type="text" inputmode="numeric"></div>
       </div>
       <div class="fld"><label>Comments</label><textarea id="edit-comments" rows="2"></textarea></div>
+      <div class="fld" id="playlist-row"><label>Playlist</label>
+        <select id="edit-playlist"><option value="">— Add to playlist —</option></select>
+      </div>
     </div>
 
     <div class="itunes-pane" id="pane-artwork" style="display:none;">
@@ -632,6 +804,8 @@
     </div>
 
     <div class="itunes-footer">
+      <button class="itunes-btn danger" id="btn-delete-track">Delete</button>
+      <span style="flex:1"></span>
       <button class="itunes-btn" id="btn-info-cancel">Cancel</button>
       <button class="itunes-btn primary" id="btn-info-ok">OK</button>
     </div>
@@ -685,33 +859,53 @@ const menuListEl = document.getElementById('menu-list');
 
 // ---- Menu (home) definition ----
 const MENU_ITEMS = [
-  { label: 'Playlists', action: () => alert('Playlists — coming soon.') },
-  { label: 'Artists', action: () => alert('Artist browsing — coming soon.') },
+  { label: 'Playlists', action: () => openBrowse('playlists') },
+  { label: 'Artists', action: () => openBrowse('artists') },
   { label: 'Albums', action: () => { showView('albums'); render(); } },
   { label: 'Songs', action: () => { showView('songs'); render(); } },
-  { label: 'Genres', action: () => alert('Genre browsing — coming soon.') },
+  { label: 'Genres', action: () => openBrowse('genres') },
+  { label: 'Extras', action: () => openExtras() },
   { label: 'Settings', action: () => showView('settings') },
-  { label: 'Shuffle Songs', action: () => shuffleAndPlay() },
 ];
 
+// The real iPod appended a "Now Playing" row whenever a track was loaded
+function currentMenuItems(){
+  const items = MENU_ITEMS.slice();
+  if (currentIndex >= 0 && library[currentIndex]) {
+    items.push({
+      label: 'Now Playing',
+      nowPlaying: true,
+      action: () => { showView('now'); updateNowPlaying(); }
+    });
+  }
+  return items;
+}
+
 function renderMenu(){
-  menuListEl.innerHTML = MENU_ITEMS.map((item, i) => `
-    <div class="menu-item${i === selectedMenuIndex ? ' selected' : ''}" data-idx="${i}">
-      <span>${item.label}</span>
-      <span class="chev">›</span>
-    </div>
-  `).join('');
+  const items = currentMenuItems();
+  if (selectedMenuIndex >= items.length) selectedMenuIndex = items.length - 1;
+  menuListEl.innerHTML = items.map((item, i) => {
+    const sub = item.nowPlaying
+      ? '<span class="chev np-chev">' + escapeHtml(library[currentIndex].title) + ' &#8250;</span>'
+      : '<span class="chev">&#8250;</span>';
+    return '<div class="menu-item' + (i === selectedMenuIndex ? ' selected' : '') +
+      (item.nowPlaying ? ' now-playing-row' : '') + '" data-idx="' + i + '">' +
+      '<span>' + item.label + '</span>' + sub + '</div>';
+  }).join('');
   [...menuListEl.querySelectorAll('.menu-item')].forEach(el => {
     el.onclick = () => {
       selectedMenuIndex = parseInt(el.dataset.idx);
       renderMenu();
-      MENU_ITEMS[selectedMenuIndex].action();
+      currentMenuItems()[selectedMenuIndex].action();
     };
   });
 }
 
 function shuffleAndPlay(){
   if (library.length === 0){ alert('Import some music first.'); return; }
+  shuffleOn = true;
+  setQueue(library.map((_, i) => i));
+  updateShuffleRepeatUI();
   selectedIndex = Math.floor(Math.random() * library.length);
   playIndex(selectedIndex);
 }
@@ -765,11 +959,17 @@ document.getElementById('btn-play').onclick = btnClick(() => {
     togglePlay();
   }
 });
-document.getElementById('btn-next').onclick = btnClick(() => playIndex(currentIndex + 1));
-document.getElementById('btn-prev').onclick = btnClick(() => playIndex(currentIndex - 1));
+document.getElementById('btn-next').onclick = btnClick(() => { const n = nextIndex(false); if (n >= 0) playIndex(n); });
+document.getElementById('btn-prev').onclick = btnClick(() => { const n = prevIndex(); if (n >= 0) playIndex(n); });
 document.getElementById('btn-center').onclick = btnClick(() => {
-  if (currentView === 'menu') { MENU_ITEMS[selectedMenuIndex].action(); }
+  if (currentView === 'brick') { brickLaunch(); return; }
+  if (currentView === 'extras') { EXTRAS_ITEMS[extrasSelected].action(); return; }
+  if (currentView === 'menu') { currentMenuItems()[selectedMenuIndex].action(); }
   else if (currentView === 'albums') { openAlbum(selectedAlbumIndex); }
+  else if (currentView === 'browse') {
+    const g = currentBrowseGroups()[browseSelected];
+    if (g) openTrackList(g.name, g.indices, 'browse', g.playlistId);
+  }
   else if (currentView === 'songs' || currentView === 'albumtracks') { playIndex(selectedIndex); }
   else if (currentView === 'now') { togglePlay(); }
 });
@@ -777,9 +977,17 @@ document.getElementById('btn-center').onclick = btnClick(() => {
 [...document.querySelectorAll('[data-back]')].forEach(btn => {
   btn.onclick = btnClick(() => showView('menu'));
 });
-[...document.querySelectorAll('[data-back-albums]')].forEach(btn => {
-  btn.onclick = btnClick(() => { showView('albums'); render(); });
+document.getElementById('tracklist-back').onclick = btnClick(() => {
+  const back = listContext && listContext.backTo ? listContext.backTo : 'menu';
+  if (back === 'albums') { showView('albums'); render(); }
+  else if (back === 'browse') { showView('browse'); renderBrowse(); }
+  else showView('menu');
 });
+document.getElementById('btn-edit-all').onclick = btnClick(() => openBatchEditor());
+document.getElementById('btn-new-playlist').onclick = btnClick(() => createPlaylist());
+document.querySelector('.np-shuffle').onclick = btnClick(() => toggleShuffle());
+document.querySelector('.np-repeat').onclick = btnClick(() => cycleRepeat());
+document.getElementById('btn-delete-track').onclick = btnClick(() => { if (editingIndex >= 0) deleteTrack(editingIndex); });
 
 // ---- Circular scroll-wheel gesture with click detents ----
 const wheelEl = document.querySelector('.wheel');
@@ -798,13 +1006,35 @@ function angleFromEvent(e){
   return Math.atan2(dy, dx) * (180 / Math.PI);
 }
 
+let scrubbing = false;
+let scrubTarget = 0;
+let lastDetentAt = 0;
+
 function wheelStart(e){
   // ignore if the press started on a button/label (those have their own handlers)
   if (e.target.closest('.center-btn, .wheel-label')) return;
   dragging = true;
   lastAngle = angleFromEvent(e);
   accumDeg = 0;
+  lastDetentAt = 0;
+  if (currentView === 'now' && currentDuration()) {
+    scrubbing = true;
+    scrubTarget = currentPosition();
+  }
   e.preventDefault();
+}
+
+// Show where the scrub will land without actually seeking yet
+function paintScrubPreview(){
+  const dur = currentDuration();
+  if (!dur) return;
+  const pct = (scrubTarget / dur) * 100;
+  document.getElementById('np-progress').style.width = pct + '%';
+  document.getElementById('np-dot').style.left = pct + '%';
+  document.getElementById('np-time-elapsed').textContent = formatTime(scrubTarget);
+  document.getElementById('np-time-remaining').textContent = '-' + formatTime(dur - scrubTarget);
+  const diff = scrubTarget - currentPosition();
+  setStatus((diff >= 0 ? '+' : '') + Math.round(diff) + 's', true);
 }
 
 function wheelMove(e){
@@ -821,18 +1051,71 @@ function wheelMove(e){
     accumDeg -= dir * DETENT_DEG;
     playClick();
     if (currentView === 'menu') {
-      selectedMenuIndex = Math.max(0, Math.min(MENU_ITEMS.length - 1, selectedMenuIndex + dir));
+      selectedMenuIndex = Math.max(0, Math.min(currentMenuItems().length - 1, selectedMenuIndex + dir));
       renderMenu();
-    } else if (currentView === 'songs' || currentView === 'albums' || currentView === 'albumtracks') {
+    } else if (currentView === 'brick') {
+      brickMovePaddle(dir);
+    } else if (currentView === 'extras') {
+      extrasSelected = Math.max(0, Math.min(EXTRAS_ITEMS.length - 1, extrasSelected + dir));
+      renderExtras();
+    } else if (currentView === 'songs' || currentView === 'albums' || currentView === 'albumtracks' || currentView === 'browse') {
+      const now = Date.now();
+      const gap = lastDetentAt ? now - lastDetentAt : 999;
+      lastDetentAt = now;
       moveSelection(dir);
-    } else if (currentView === 'now') {
-      seekBy(dir * 3);
+      if (gap < 90) showScrollLetter(); // only when spinning quickly
+    } else if (currentView === 'now' && scrubbing) {
+      // Acceleration: the faster you spin, the bigger each step
+      const now = Date.now();
+      const gap = lastDetentAt ? now - lastDetentAt : 999;
+      lastDetentAt = now;
+      let step = 2;                    // slow spin: fine control
+      if (gap < 40) step = 15;         // fast spin: big jumps
+      else if (gap < 80) step = 8;
+      else if (gap < 150) step = 4;
+      const dur = currentDuration();
+      scrubTarget = Math.max(0, Math.min(dur - 0.2, scrubTarget + dir * step));
+      paintScrubPreview();
     }
   }
   e.preventDefault();
 }
 
-function wheelEnd(){ dragging = false; }
+// ---- Fast-scroll letter overlay ----
+let letterTimer = null;
+
+function currentSelectionLabel(){
+  if (currentView === 'songs' && library[selectedIndex]) return library[selectedIndex].title;
+  if (currentView === 'albumtracks' && library[selectedIndex]) return library[selectedIndex].title;
+  if (currentView === 'albums') { const a = getAlbums()[selectedAlbumIndex]; return a ? a.album : ''; }
+  if (currentView === 'browse') { const g = currentBrowseGroups()[browseSelected]; return g ? g.name : ''; }
+  return '';
+}
+
+function showScrollLetter(){
+  const label = currentSelectionLabel();
+  if (!label) return;
+  const el = document.getElementById('scroll-letter');
+  el.textContent = label.trim().charAt(0) || '#';
+  el.classList.add('shown');
+  clearTimeout(letterTimer);
+  letterTimer = setTimeout(() => el.classList.remove('shown'), 700);
+}
+
+function hideScrollLetter(){
+  clearTimeout(letterTimer);
+  document.getElementById('scroll-letter').classList.remove('shown');
+}
+
+function wheelEnd(){
+  dragging = false;
+  setTimeout(hideScrollLetter, 400);
+  if (scrubbing) {
+    scrubbing = false;
+    seekTo(scrubTarget);
+    setStatus('');
+  }
+}
 
 wheelEl.addEventListener('mousedown', wheelStart);
 window.addEventListener('mousemove', wheelMove);
@@ -840,6 +1123,46 @@ window.addEventListener('mouseup', wheelEnd);
 wheelEl.addEventListener('touchstart', wheelStart, { passive: false });
 window.addEventListener('touchmove', wheelMove, { passive: false });
 window.addEventListener('touchend', wheelEnd);
+
+// ---- Drag the progress bar to scrub ----
+const progressEl = document.querySelector('.progress');
+let barDragging = false;
+
+function barPosFromEvent(e){
+  const rect = progressEl.getBoundingClientRect();
+  const point = e.touches ? e.touches[0] : e;
+  const ratio = Math.max(0, Math.min(1, (point.clientX - rect.left) / rect.width));
+  return ratio * currentDuration();
+}
+
+function barStart(e){
+  if (currentView !== 'now' || !currentDuration()) return;
+  barDragging = true;
+  scrubbing = true;
+  scrubTarget = barPosFromEvent(e);
+  paintScrubPreview();
+  e.preventDefault();
+}
+function barMove(e){
+  if (!barDragging) return;
+  scrubTarget = barPosFromEvent(e);
+  paintScrubPreview();
+  e.preventDefault();
+}
+function barEnd(){
+  if (!barDragging) return;
+  barDragging = false;
+  scrubbing = false;
+  seekTo(scrubTarget);
+  setStatus('');
+}
+
+progressEl.addEventListener('mousedown', barStart);
+window.addEventListener('mousemove', barMove);
+window.addEventListener('mouseup', barEnd);
+progressEl.addEventListener('touchstart', barStart, { passive: false });
+progressEl.addEventListener('touchmove', barMove, { passive: false });
+window.addEventListener('touchend', barEnd);
 
 // ---- Cover flow swipe gesture ----
 const cfEl = document.getElementById('coverflow');
@@ -879,15 +1202,19 @@ cfEl.addEventListener('touchstart', cfStart, { passive: false });
 cfEl.addEventListener('touchmove', cfMove, { passive: false });
 window.addEventListener('touchend', cfEnd);
 
-const VIEW_LABELS = { menu: 'Menu', songs: 'Songs', albums: 'Albums', albumtracks: 'Album', settings: 'Settings', now: 'Now Playing' };
+const VIEW_LABELS = { menu: 'Menu', songs: 'Songs', albums: 'Albums', browse: 'Browse', albumtracks: 'List', extras: 'Extras', brick: 'Brick', quiz: 'Music Quiz', settings: 'Settings', now: 'Now Playing' };
 
 function showView(name){
   currentView = name;
-  ['menu', 'songs', 'albums', 'albumtracks', 'settings', 'now'].forEach(v => {
+  ['menu', 'songs', 'albums', 'browse', 'albumtracks', 'extras', 'brick', 'quiz', 'settings', 'now'].forEach(v => {
     document.getElementById('view-' + v).classList.toggle('active', v === name);
   });
   document.getElementById('statusbar-label').textContent = VIEW_LABELS[name];
+  if (name !== 'now') document.getElementById('cover-full').classList.remove('shown');
+  if (name !== 'brick') stopBrick();
+  if (name !== 'quiz' && quiz && quiz.active) quizStop();
   if (name === 'menu') renderMenu();
+  if (name === 'extras') renderExtras();
   if (name === 'settings') { if (storageAvailable === null) testStorage(); updateStoragePanel(); }
 }
 
@@ -900,6 +1227,8 @@ function importFile(file){
     id: generateId(),
     file, url: null,
     mimeType: file.type || 'audio/mpeg',
+    fileName: file.name,
+    fileSize: file.size,
     title: file.name.replace(/\.[^/.]+$/, ''),
     artist: 'Unknown Artist',
     album: '',
@@ -956,8 +1285,11 @@ function importFile(file){
     });
   });
 
-  // Once both the audio data and tags are ready, persist to on-device storage
-  Promise.all([bufferPromise, tagsPromise]).then(() => saveTrackToStorage(track));
+  // Once the audio and tags are ready: re-apply any backed-up metadata, then save
+  Promise.all([bufferPromise, tagsPromise])
+    .then(() => applyPendingMetaTo(track))
+    .then(restored => { if (restored) { render(); if (currentIndex === idx) updateNowPlaying(); } })
+    .then(() => saveTrackToStorage(track));
 }
 
 let selectedAlbumIndex = 0;
@@ -1002,7 +1334,8 @@ function getAlbums(){
 function render(){
   if (currentView === 'songs') renderList();
   else if (currentView === 'albums') renderCoverflow();
-  else if (currentView === 'albumtracks') renderAlbumTracks();
+  else if (currentView === 'albumtracks') renderTrackList();
+  else if (currentView === 'browse') renderBrowse();
 }
 
 function renderList(){
@@ -1023,7 +1356,9 @@ function renderList(){
   [...trackList.querySelectorAll('.list-item')].forEach(el => {
     el.onclick = (e) => {
       if (e.target.closest('.info-btn')) return;
-      selectedIndex = parseInt(el.dataset.idx); render(); playIndex(selectedIndex);
+      selectedIndex = parseInt(el.dataset.idx);
+      setQueue(library.map((_, i) => i));
+      render(); playIndex(selectedIndex);
     };
   });
   [...trackList.querySelectorAll('.info-btn')].forEach(el => {
@@ -1084,42 +1419,7 @@ function openAlbum(idx){
   const albums = getAlbums();
   if (idx < 0 || idx >= albums.length) return;
   openAlbumKey = albums[idx].key;
-  selectedIndex = albums[idx].indices[0];
-  showView('albumtracks');
-  render();
-}
-
-function renderAlbumTracks(){
-  const albums = getAlbums();
-  const album = albums.find(a => a.key === openAlbumKey);
-  const listEl = document.getElementById('album-track-list');
-  if (!album) { listEl.innerHTML = '<div class="empty-msg">Album not found.</div>'; return; }
-
-  document.getElementById('albumtracks-title').textContent = album.album;
-
-  listEl.innerHTML = album.indices.map((li, n) => {
-    const t = library[li];
-    return '<div class="list-item' + (li === selectedIndex ? ' selected' : '') + '" data-idx="' + li + '">' +
-      '<span class="track-num">' + (parseTrackNo(t.trackNo) !== null ? parseTrackNo(t.trackNo) : '–') + '</span>' +
-      '<div class="meta">' +
-        '<div class="title">' + escapeHtml(t.title) + '</div>' +
-        '<div class="sub">' + escapeHtml(t.artist) + '</div>' +
-      '</div>' +
-      '<button class="info-btn" data-info="' + li + '" title="Get Info">&#9432;</button>' +
-    '</div>';
-  }).join('');
-
-  [...listEl.querySelectorAll('.list-item')].forEach(el => {
-    el.onclick = (e) => {
-      if (e.target.closest('.info-btn')) return;
-      selectedIndex = parseInt(el.dataset.idx);
-      render();
-      playIndex(selectedIndex);
-    };
-  });
-  [...listEl.querySelectorAll('.info-btn')].forEach(el => {
-    el.onclick = (e) => { e.stopPropagation(); playClick(); openInfoEditor(parseInt(el.dataset.info)); };
-  });
+  openTrackList(albums[idx].album, albums[idx].indices, 'albums');
 }
 
 function moveSelection(delta){
@@ -1133,13 +1433,22 @@ function moveSelection(delta){
     return;
   }
 
+  if (currentView === 'browse') {
+    const groups = currentBrowseGroups();
+    if (!groups.length) return;
+    browseSelected = Math.max(0, Math.min(groups.length - 1, browseSelected + delta));
+    renderBrowse();
+    const el = document.querySelector('#browse-list .menu-item.selected');
+    if (el) el.scrollIntoView({ block: 'nearest' });
+    return;
+  }
+
   if (currentView === 'albumtracks') {
-    const albums = getAlbums();
-    const album = albums.find(a => a.key === openAlbumKey);
-    if (!album) return;
-    const pos = album.indices.indexOf(selectedIndex);
-    const next = Math.max(0, Math.min(album.indices.length - 1, (pos < 0 ? 0 : pos) + delta));
-    selectedIndex = album.indices[next];
+    if (!listContext) return;
+    const idxs = listContext.indices;
+    const pos = idxs.indexOf(selectedIndex);
+    const next = Math.max(0, Math.min(idxs.length - 1, (pos < 0 ? 0 : pos) + delta));
+    selectedIndex = idxs[next];
     render();
     const el = document.querySelector('#album-track-list .list-item.selected');
     if (el) el.scrollIntoView({ block: 'nearest' });
@@ -1269,7 +1578,7 @@ function startFrom(offset){
   isPlaying = true;
 
   sourceNode.onended = () => {
-    if (isPlaying && currentPosition() >= currentDuration() - 0.15) playIndex(currentIndex + 1);
+    if (isPlaying && currentPosition() >= currentDuration() - 0.15) { const n = nextIndex(true); if (n >= 0) playIndex(n); }
   };
 
   sourceNode.start(0, playOffset);
@@ -1278,6 +1587,7 @@ function startFrom(offset){
 }
 
 function tickProgress(){
+  if (scrubbing) { if (isPlaying) rafId = requestAnimationFrame(tickProgress); return; }
   const dur = currentDuration();
   if (dur) {
     const pos = currentPosition();
@@ -1315,8 +1625,8 @@ function setupMediaSessionHandlers(){
   const set = (action, fn) => { try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) {} };
   set('play', () => { if (!isPlaying) togglePlay(); });
   set('pause', () => { if (isPlaying) togglePlay(); });
-  set('previoustrack', () => playIndex(currentIndex - 1));
-  set('nexttrack', () => playIndex(currentIndex + 1));
+  set('previoustrack', () => { const n = prevIndex(); if (n >= 0) playIndex(n); });
+  set('nexttrack', () => { const n = nextIndex(false); if (n >= 0) playIndex(n); });
   set('seekbackward', (d) => seekBy(-(d && d.seekOffset ? d.seekOffset : 10)));
   set('seekforward', (d) => seekBy(d && d.seekOffset ? d.seekOffset : 10));
   set('seekto', (d) => { if (d && typeof d.seekTime === 'number') seekTo(d.seekTime); });
@@ -1432,8 +1742,774 @@ function updateNowPlaying(){
 // Keep state in sync when the element backend drives playback
 audio.addEventListener('play', () => { isPlaying = true; updateStatusPlayIcon(); updateMediaSession(); tickProgress(); });
 audio.addEventListener('pause', () => { isPlaying = false; updateStatusPlayIcon(); updateMediaSession(); });
-audio.addEventListener('ended', () => { if (engine === 'element') playIndex(currentIndex + 1); });
+audio.addEventListener('ended', () => { if (engine === 'element') { const n = nextIndex(true); if (n >= 0) playIndex(n); else { isPlaying = false; updateStatusPlayIcon(); } } });
 setupMediaSessionHandlers();
+
+
+// ================= Browse: artists / genres / playlists =================
+let browseMode = 'artists';
+let browseSelected = 0;
+let listContext = null; // { title, indices, backTo, playlistId }
+let playlists = [];     // [{ id, name, trackIds: [] }]
+
+function groupBy(getKey, fallback){
+  const map = new Map();
+  library.forEach((t, i) => {
+    const raw = (getKey(t) || '').trim();
+    const name = raw || fallback;
+    const key = name.toLowerCase();
+    if (!map.has(key)) map.set(key, { key, name, indices: [], cover: t.cover || null });
+    const e = map.get(key);
+    e.indices.push(i);
+    if (!e.cover && t.cover) e.cover = t.cover;
+  });
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function getArtists(){ return groupBy(t => t.albumArtist || t.artist, 'Unknown Artist'); }
+function getGenres(){ return groupBy(t => t.genre, 'Unclassified'); }
+
+function openBrowse(mode){
+  browseMode = mode;
+  browseSelected = 0;
+  document.getElementById('browse-title').textContent =
+    mode === 'artists' ? 'Artists' : mode === 'genres' ? 'Genres' : 'Playlists';
+  document.getElementById('btn-new-playlist').style.visibility =
+    mode === 'playlists' ? 'visible' : 'hidden';
+  showView('browse');
+  renderBrowse();
+}
+
+function currentBrowseGroups(){
+  if (browseMode === 'artists') return getArtists();
+  if (browseMode === 'genres') return getGenres();
+  return playlists.map(p => ({
+    key: p.id,
+    name: p.name,
+    playlistId: p.id,
+    indices: p.trackIds.map(id => library.findIndex(t => t.id === id)).filter(i => i >= 0),
+    cover: null
+  }));
+}
+
+function renderBrowse(){
+  const el = document.getElementById('browse-list');
+  const groups = currentBrowseGroups();
+
+  if (groups.length === 0){
+    const msg = browseMode === 'playlists'
+      ? 'No playlists yet. Tap + to create one.'
+      : 'Nothing here yet — import some music first.';
+    el.innerHTML = '<div class="empty-msg">' + msg + '</div>';
+    return;
+  }
+  if (browseSelected >= groups.length) browseSelected = 0;
+
+  el.innerHTML = groups.map((g, i) =>
+    '<div class="menu-item' + (i === browseSelected ? ' selected' : '') + '" data-idx="' + i + '">' +
+      '<span>' + escapeHtml(g.name) + '</span>' +
+      '<span class="chev">' + g.indices.length + ' &#8250;</span>' +
+    '</div>'
+  ).join('');
+
+  [...el.querySelectorAll('.menu-item')].forEach(item => {
+    item.onclick = () => {
+      browseSelected = parseInt(item.dataset.idx);
+      playClick();
+      const g = currentBrowseGroups()[browseSelected];
+      openTrackList(g.name, g.indices, 'browse', g.playlistId);
+    };
+  });
+}
+
+// ---- Generic track list (album / artist / genre / playlist contents) ----
+function openTrackList(title, indices, backTo, playlistId){
+  listContext = { title, indices: indices.slice(), backTo, playlistId };
+  selectedIndex = indices.length ? indices[0] : -1;
+  showView('albumtracks');
+  render();
+}
+
+function renderTrackList(){
+  const listEl = document.getElementById('album-track-list');
+  if (!listContext) { listEl.innerHTML = '<div class="empty-msg">Nothing to show.</div>'; return; }
+
+  document.getElementById('albumtracks-title').textContent = listContext.title;
+  const indices = listContext.indices.filter(i => i >= 0 && i < library.length);
+
+  if (indices.length === 0){
+    listEl.innerHTML = '<div class="empty-msg">No tracks here yet.</div>';
+    return;
+  }
+
+  listEl.innerHTML = indices.map((li, n) => {
+    const t = library[li];
+    const num = parseTrackNo(t.trackNo);
+    return '<div class="list-item' + (li === selectedIndex ? ' selected' : '') + '" data-idx="' + li + '">' +
+      '<span class="track-num">' + (num !== null ? num : (n + 1)) + '</span>' +
+      '<div class="meta">' +
+        '<div class="title">' + escapeHtml(t.title) + '</div>' +
+        '<div class="sub">' + escapeHtml(t.artist) + '</div>' +
+      '</div>' +
+      '<button class="info-btn" data-info="' + li + '" title="Get Info">&#9432;</button>' +
+    '</div>';
+  }).join('');
+
+  [...listEl.querySelectorAll('.list-item')].forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest('.info-btn')) return;
+      selectedIndex = parseInt(el.dataset.idx);
+      setQueue(indices);
+      render();
+      playIndex(selectedIndex);
+    };
+  });
+  [...listEl.querySelectorAll('.info-btn')].forEach(el => {
+    el.onclick = (e) => { e.stopPropagation(); playClick(); openInfoEditor(parseInt(el.dataset.info)); };
+  });
+}
+
+// ================= Playback queue, shuffle & repeat =================
+let queue = [];            // library indices in play order
+let shuffleOn = false;
+let repeatMode = 'off';    // 'off' | 'all' | 'one'
+
+function setQueue(indices){
+  queue = indices.slice();
+}
+
+function ensureQueue(){
+  if (!queue.length) queue = library.map((_, i) => i);
+  return queue;
+}
+
+function queuePosition(){
+  return ensureQueue().indexOf(currentIndex);
+}
+
+function nextIndex(auto){
+  const q = ensureQueue();
+  if (!q.length) return -1;
+  if (auto && repeatMode === 'one') return currentIndex;
+
+  if (shuffleOn) {
+    if (q.length === 1) return q[0];
+    let pick;
+    do { pick = q[Math.floor(Math.random() * q.length)]; } while (pick === currentIndex);
+    return pick;
+  }
+  const pos = queuePosition();
+  if (pos === -1) return q[0];
+  if (pos + 1 < q.length) return q[pos + 1];
+  return repeatMode === 'all' ? q[0] : -1;
+}
+
+function prevIndex(){
+  const q = ensureQueue();
+  if (!q.length) return -1;
+  if (shuffleOn) return nextIndex(false);
+  const pos = queuePosition();
+  if (pos <= 0) return repeatMode === 'all' ? q[q.length - 1] : q[0];
+  return q[pos - 1];
+}
+
+function toggleShuffle(){
+  shuffleOn = !shuffleOn;
+  updateShuffleRepeatUI();
+}
+
+function cycleRepeat(){
+  repeatMode = repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
+  updateShuffleRepeatUI();
+}
+
+function updateShuffleRepeatUI(){
+  const sh = document.querySelector('.np-shuffle');
+  const rp = document.querySelector('.np-repeat');
+  if (sh) sh.classList.toggle('on', shuffleOn);
+  if (rp) {
+    rp.classList.toggle('on', repeatMode !== 'off');
+    rp.textContent = repeatMode === 'one' ? '\u21BA1' : '\u21BA';
+  }
+}
+
+// ================= Delete & batch edit =================
+async function deleteTrack(i){
+  if (i < 0 || i >= library.length) return;
+  const t = library[i];
+  if (!confirm('Delete "' + t.title + '" from your library?')) return;
+
+  // remove from any playlists
+  playlists.forEach(p => { p.trackIds = p.trackIds.filter(id => id !== t.id); });
+  await savePlaylists();
+
+  // remove from storage
+  try {
+    if (backend === 'idb' && idb) await idbTx('readwrite', s => s.delete(t.id));
+    else if (backend === 'host') {
+      const n = t.chunkCount || 0;
+      for (let c = 0; c < n; c++) await window.storage.delete('audio:' + t.id + ':' + c, false);
+      await window.storage.delete('track:' + t.id, false);
+      const ids = await readIndex();
+      await writeIndex(ids.filter(id => id !== t.id));
+    }
+  } catch (e) { console.warn('Could not remove from storage', e); }
+
+  if (currentIndex === i) { stopSource(); currentIndex = -1; }
+  else if (currentIndex > i) currentIndex--;
+
+  library.splice(i, 1);
+  if (listContext) listContext.indices = listContext.indices.filter(x => x !== i).map(x => x > i ? x - 1 : x);
+  queue = queue.filter(x => x !== i).map(x => x > i ? x - 1 : x);
+  selectedIndex = Math.min(selectedIndex, library.length - 1);
+
+  closeInfoEditor();
+  render();
+  updateStoragePanel();
+}
+
+let batchMode = false;
+
+function openBatchEditor(){
+  if (!listContext || !listContext.indices.length) return;
+  batchMode = true;
+  editingIndex = -1;
+  pendingCover = null;
+
+  ['edit-title','edit-artist','edit-album','edit-albumartist','edit-composer',
+   'edit-genre','edit-year','edit-track','edit-comments'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('edit-title').disabled = true;
+  document.getElementById('edit-track').disabled = true;
+  document.getElementById('tl-title-text').textContent =
+    'Edit ' + listContext.indices.length + ' Items';
+  document.getElementById('btn-delete-track').style.display = 'none';
+  document.getElementById('playlist-row').style.display = 'none';
+  showArtwork(null);
+  switchTab('info');
+  document.getElementById('info-overlay').classList.add('open');
+}
+
+async function applyBatchEdit(){
+  const val = id => document.getElementById(id).value.trim();
+  const fields = {
+    artist: val('edit-artist'),
+    album: val('edit-album'),
+    albumArtist: val('edit-albumartist'),
+    composer: val('edit-composer'),
+    genre: val('edit-genre'),
+    year: val('edit-year'),
+    comments: val('edit-comments')
+  };
+  const indices = listContext.indices.slice();
+  for (const i of indices) {
+    const t = library[i];
+    if (!t) continue;
+    Object.keys(fields).forEach(k => { if (fields[k]) t[k] = fields[k]; });
+    if (pendingCover !== null) t.cover = pendingCover || null;
+    await saveTrackMetaToStorage(t);
+  }
+  closeInfoEditor();
+  render();
+}
+
+// ================= Playlist storage =================
+async function savePlaylists(){
+  try {
+    if (backend === 'idb' && idb) {
+      await idbPut({ id: '__playlists', playlists: JSON.stringify(playlists) });
+    } else if (backend === 'host') {
+      await setWithRetry('playlists', JSON.stringify(playlists));
+    }
+  } catch (e) { console.warn('Could not save playlists', e); }
+}
+
+async function loadPlaylists(){
+  try {
+    if (backend === 'idb' && idb) {
+      const all = await idbGetAll();
+      const rec = all.find(r => r.id === '__playlists');
+      if (rec && rec.playlists) playlists = JSON.parse(rec.playlists);
+    } else if (backend === 'host') {
+      const rec = await window.storage.get('playlists', false);
+      if (rec && rec.value) playlists = JSON.parse(rec.value);
+    }
+  } catch (e) { playlists = []; }
+}
+
+async function createPlaylist(){
+  const name = prompt('Playlist name:');
+  if (!name || !name.trim()) return;
+  playlists.push({ id: generateId(), name: name.trim(), trackIds: [] });
+  await savePlaylists();
+  renderBrowse();
+}
+
+async function addTrackToPlaylist(trackIndex, playlistId){
+  const t = library[trackIndex];
+  const p = playlists.find(x => x.id === playlistId);
+  if (!t || !p) return;
+  if (!p.trackIds.includes(t.id)) p.trackIds.push(t.id);
+  await savePlaylists();
+}
+
+
+// ================= Extras: themes, dark UI, games =================
+const THEMES = {
+  black:  { name: 'Black',  body:'#2b2b2e', dark:'#111113', wheel1:'#4a4a4d', wheel2:'#1c1c1e', hub1:'#333336', hub2:'#18181a', glyph:'#8a8a8e' },
+  silver: { name: 'Silver', body:'#e9e9ec', dark:'#c3c5c9', wheel1:'#ffffff', wheel2:'#e2e4e7', hub1:'#f6f6f6', hub2:'#dcdcdc', glyph:'#8a8f93' },
+  blue:   { name: 'Blue',   body:'#c9d4dd', dark:'#a9b7c4', wheel1:'#ffffff', wheel2:'#e4e6e8', hub1:'#f6f6f6', hub2:'#dcdcdc', glyph:'#8a8f93' },
+  pink:   { name: 'Pink',   body:'#e8b9bd', dark:'#cf9298', wheel1:'#ffffff', wheel2:'#e9e2e3', hub1:'#f8f5f5', hub2:'#e0d6d7', glyph:'#8f8a8b' },
+  u2:     { name: 'U2',     body:'#242427', dark:'#0c0c0e', wheel1:'#c0392b', wheel2:'#7d1f16', hub1:'#a33327', hub2:'#671a12', glyph:'#f2d9d5' }
+};
+let currentTheme = 'black';
+
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.black;
+  currentTheme = key;
+  const r = document.documentElement.style;
+  r.setProperty('--pod-body', t.body);
+  r.setProperty('--pod-body-dark', t.dark);
+  r.setProperty('--wheel-1', t.wheel1);
+  r.setProperty('--wheel-2', t.wheel2);
+  r.setProperty('--hub-1', t.hub1);
+  r.setProperty('--hub-2', t.hub2);
+  r.setProperty('--glyph', t.glyph);
+  document.querySelector('meta[name=theme-color]').setAttribute('content', t.dark);
+  renderThemeRow();
+}
+
+function renderThemeRow(){
+  const row = document.getElementById('theme-row');
+  if (!row) return;
+  row.innerHTML = Object.keys(THEMES).map(k =>
+    '<span class="theme-dot' + (k === currentTheme ? ' active' : '') + '" data-theme="' + k + '" title="' + THEMES[k].name +
+    '" style="background:linear-gradient(145deg,' + THEMES[k].body + ',' + THEMES[k].dark + ')"></span>'
+  ).join('');
+  [...row.querySelectorAll('.theme-dot')].forEach(d => {
+    d.onclick = () => { playClick(); applyTheme(d.dataset.theme); savePrefs(); };
+  });
+}
+
+// ---- Dark screen ----
+let darkUI = false;
+function applyDarkUI(){
+  document.body.classList.toggle('dark-ui', darkUI);
+}
+
+
+async function savePrefs(){
+  const prefs = { theme: currentTheme, darkUI: darkUI };
+  try {
+    if (backend === 'idb' && idb) await idbPut({ id: '__prefs', prefs: JSON.stringify(prefs) });
+    else if (backend === 'host') await setWithRetry('prefs', JSON.stringify(prefs));
+  } catch (e) { /* prefs are non-critical */ }
+}
+
+async function loadPrefs(){
+  try {
+    let raw = null;
+    if (backend === 'idb' && idb) {
+      const all = await idbGetAll();
+      const rec = all.find(r => r.id === '__prefs');
+      if (rec) raw = rec.prefs;
+    } else if (backend === 'host') {
+      const rec = await window.storage.get('prefs', false);
+      if (rec) raw = rec.value;
+    }
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p.theme) currentTheme = p.theme;
+      darkUI = !!p.darkUI;
+    }
+  } catch (e) { /* defaults */ }
+  applyTheme(currentTheme);
+  applyDarkUI();
+  const vt = document.getElementById('dark-toggle');
+  if (vt) vt.checked = darkUI;
+}
+
+// ---- Extras menu ----
+const EXTRAS_ITEMS = [
+  { label: 'Brick', action: () => startBrick() },
+  { label: 'Music Quiz', action: () => openQuiz() }
+];
+let extrasSelected = 0;
+
+function openExtras(){
+  extrasSelected = 0;
+  showView('extras');
+  renderExtras();
+}
+
+function renderExtras(){
+  const el = document.getElementById('extras-list');
+  el.innerHTML = EXTRAS_ITEMS.map((it, i) =>
+    '<div class="menu-item' + (i === extrasSelected ? ' selected' : '') + '" data-idx="' + i + '">' +
+    '<span>' + it.label + '</span><span class="chev">&#8250;</span></div>'
+  ).join('');
+  [...el.querySelectorAll('.menu-item')].forEach(item => {
+    item.onclick = () => { extrasSelected = parseInt(item.dataset.idx); playClick(); EXTRAS_ITEMS[extrasSelected].action(); };
+  });
+}
+
+// ================= Brick =================
+let brick = null;
+
+function startBrick(){
+  showView('brick');
+  const canvas = document.getElementById('brick-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const cols = 7, rows = 4, bw = W / cols, bh = 16;
+  const bricks = [];
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      bricks.push({ x: c * bw, y: 28 + r * (bh + 4), w: bw - 4, h: bh, alive: true, row: r });
+
+  brick = {
+    ctx, W, H, bricks,
+    paddle: { x: W / 2 - 30, w: 60, h: 8 },
+    ball: { x: W / 2, y: H - 40, dx: 0, dy: 0, r: 4 },
+    launched: false, score: 0, lives: 3, over: false, raf: null
+  };
+  document.getElementById('brick-score').textContent = '0';
+  document.getElementById('brick-hint').textContent = 'Spin the wheel to move · center to launch';
+  brickLoop();
+}
+
+function stopBrick(){
+  if (brick && brick.raf) cancelAnimationFrame(brick.raf);
+  brick = null;
+}
+
+function brickLaunch(){
+  if (!brick || brick.launched || brick.over) return;
+  brick.launched = true;
+  brick.ball.dx = 2.2 * (Math.random() > 0.5 ? 1 : -1);
+  brick.ball.dy = -2.6;
+  document.getElementById('brick-hint').textContent = '';
+}
+
+function brickMovePaddle(delta){
+  if (!brick) return;
+  brick.paddle.x = Math.max(0, Math.min(brick.W - brick.paddle.w, brick.paddle.x + delta * 9));
+  if (!brick.launched) brick.ball.x = brick.paddle.x + brick.paddle.w / 2;
+}
+
+function brickLoop(){
+  if (!brick) return;
+  const { ctx, W, H, ball, paddle, bricks } = brick;
+  const COLORS = ['#c0392b', '#d68910', '#2e86c1', '#27ae60'];
+
+  if (brick.launched && !brick.over) {
+    ball.x += ball.dx; ball.y += ball.dy;
+    if (ball.x < ball.r || ball.x > W - ball.r) ball.dx *= -1;
+    if (ball.y < ball.r) ball.dy *= -1;
+
+    // paddle
+    if (ball.y + ball.r >= H - 14 && ball.y < H - 6 &&
+        ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
+      ball.dy = -Math.abs(ball.dy);
+      const hit = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+      ball.dx = hit * 3;
+    }
+
+    // bricks
+    for (const b of bricks) {
+      if (!b.alive) continue;
+      if (ball.x > b.x && ball.x < b.x + b.w && ball.y - ball.r < b.y + b.h && ball.y + ball.r > b.y) {
+        b.alive = false;
+        ball.dy *= -1;
+        brick.score += 10;
+        document.getElementById('brick-score').textContent = brick.score;
+        playClick();
+        break;
+      }
+    }
+
+    // lost ball
+    if (ball.y > H) {
+      brick.lives--;
+      brick.launched = false;
+      ball.x = paddle.x + paddle.w / 2; ball.y = H - 40; ball.dx = 0; ball.dy = 0;
+      if (brick.lives <= 0) {
+        brick.over = true;
+        document.getElementById('brick-hint').textContent = 'Game over — score ' + brick.score + '. Press MENU to exit.';
+      } else {
+        document.getElementById('brick-hint').textContent = brick.lives + ' lives left · center to launch';
+      }
+    }
+
+    if (bricks.every(b => !b.alive)) {
+      brick.over = true;
+      document.getElementById('brick-hint').textContent = 'Cleared! Score ' + brick.score;
+    }
+  }
+
+  ctx.clearRect(0, 0, W, H);
+  bricks.forEach(b => { if (b.alive) { ctx.fillStyle = COLORS[b.row % COLORS.length]; ctx.fillRect(b.x, b.y, b.w, b.h); } });
+  ctx.fillStyle = '#333';
+  ctx.fillRect(paddle.x, H - 14, paddle.w, paddle.h);
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '10px sans-serif'; ctx.fillStyle = '#777';
+  ctx.fillText('Lives: ' + Math.max(0, brick.lives), 6, 12);
+
+  brick.raf = requestAnimationFrame(brickLoop);
+}
+
+// ================= Music Quiz =================
+let quiz = { score: 0, answer: -1, options: [], timer: null, active: false };
+
+function openQuiz(){
+  quiz.score = 0;
+  quiz.active = false;
+  document.getElementById('quiz-score').textContent = '0';
+  document.getElementById('quiz-options').innerHTML = '';
+  document.getElementById('quiz-status').textContent =
+    library.length < 4 ? 'Import at least 4 songs to play.' : 'Tap Start to play a clip';
+  document.getElementById('btn-quiz-start').textContent = 'Start';
+  showView('quiz');
+}
+
+function quizNextRound(){
+  if (library.length < 4) return;
+  clearTimeout(quiz.timer);
+
+  const pool = library.map((_, i) => i);
+  const answer = pool[Math.floor(Math.random() * pool.length)];
+  const wrong = pool.filter(i => i !== answer).sort(() => Math.random() - 0.5).slice(0, 3);
+  const options = [answer, ...wrong].sort(() => Math.random() - 0.5);
+
+  quiz.answer = answer;
+  quiz.options = options;
+  quiz.active = true;
+
+  document.getElementById('quiz-status').textContent = 'Listening… name that track';
+  document.getElementById('btn-quiz-start').textContent = 'Skip';
+  document.getElementById('quiz-options').innerHTML = options.map(i =>
+    '<button class="quiz-opt" data-i="' + i + '">' + escapeHtml(library[i].title) + '</button>'
+  ).join('');
+  [...document.querySelectorAll('.quiz-opt')].forEach(btn => {
+    btn.onclick = () => quizAnswer(parseInt(btn.dataset.i), btn);
+  });
+
+  // play a short clip from a random point
+  playIndex(answer).then(() => {
+    showView('quiz'); // playIndex switches to Now Playing; come back
+    const dur = currentDuration() || 60;
+    seekTo(Math.random() * Math.max(1, dur * 0.6) + dur * 0.1);
+    quiz.timer = setTimeout(() => { if (isPlaying) togglePlay(); }, 6000);
+  });
+}
+
+function quizAnswer(i, btn){
+  if (!quiz.active) return;
+  quiz.active = false;
+  clearTimeout(quiz.timer);
+  if (isPlaying) togglePlay();
+
+  const correct = i === quiz.answer;
+  btn.classList.add(correct ? 'right' : 'wrong');
+  if (!correct) {
+    const right = document.querySelector('.quiz-opt[data-i="' + quiz.answer + '"]');
+    if (right) right.classList.add('right');
+  }
+  if (correct) { quiz.score += 10; document.getElementById('quiz-score').textContent = quiz.score; }
+  document.getElementById('quiz-status').textContent =
+    (correct ? 'Correct! ' : 'Nope — ') + library[quiz.answer].title + ' · ' + library[quiz.answer].artist;
+  document.getElementById('btn-quiz-start').textContent = 'Next';
+}
+
+function quizStop(){
+  clearTimeout(quiz.timer);
+  quiz.active = false;
+  if (isPlaying) togglePlay();
+}
+
+
+// ================= Backup & restore =================
+// The backup holds metadata, cover art, playlists and preferences — not the
+// audio itself (that would be hundreds of MB). Each entry is keyed to its
+// original filename, so re-importing the same files restores all the tagging
+// automatically. pendingMeta holds entries waiting for their file to reappear.
+let pendingMeta = {};
+
+function metaKeyFor(nameOrTrack){
+  const n = typeof nameOrTrack === 'string' ? nameOrTrack : (nameOrTrack.fileName || nameOrTrack.title || '');
+  return n.toLowerCase().trim();
+}
+
+function buildBackup(){
+  return {
+    format: 'jpod-backup',
+    version: 1,
+    exported: new Date().toISOString(),
+    trackCount: library.length,
+    prefs: { theme: currentTheme, darkUI: darkUI },
+    playlists: playlists.map(p => ({
+      name: p.name,
+      // reference tracks by filename so they survive a re-import
+      files: p.trackIds.map(id => {
+        const t = library.find(x => x.id === id);
+        return t ? (t.fileName || t.title) : null;
+      }).filter(Boolean)
+    })),
+    tracks: library.map(t => ({
+      fileName: t.fileName || '',
+      fileSize: t.fileSize || 0,
+      title: t.title,
+      artist: t.artist,
+      album: t.album,
+      albumArtist: t.albumArtist || '',
+      composer: t.composer || '',
+      genre: t.genre || '',
+      year: t.year || '',
+      trackNo: t.trackNo || '',
+      comments: t.comments || '',
+      cover: t.cover || null
+    }))
+  };
+}
+
+function exportBackup(){
+  if (library.length === 0 && playlists.length === 0) {
+    storageNote = 'Nothing to back up yet.';
+    updateStoragePanel();
+    return;
+  }
+  try {
+    const data = JSON.stringify(buildBackup());
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'jpod-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    const kb = Math.round(data.length / 1024);
+    storageNote = 'Backup saved (' + library.length + ' tracks, ' + kb + ' KB).';
+  } catch (e) {
+    storageNote = 'Backup failed: ' + (e.message || e);
+  }
+  updateStoragePanel();
+}
+
+async function importBackup(file){
+  let data;
+  try {
+    data = JSON.parse(await file.text());
+  } catch (e) {
+    storageNote = 'That file is not a valid backup.';
+    updateStoragePanel();
+    return;
+  }
+  if (!data || data.format !== 'jpod-backup') {
+    storageNote = 'That file is not a JPOD backup.';
+    updateStoragePanel();
+    return;
+  }
+
+  // 1. preferences
+  if (data.prefs) {
+    if (data.prefs.theme) currentTheme = data.prefs.theme;
+    darkUI = !!data.prefs.darkUI;
+    applyTheme(currentTheme);
+      applyDarkUI();
+      const vt = document.getElementById('dark-toggle');
+      if (vt) vt.checked = darkUI;
+    await savePrefs();
+  }
+
+  // 2. metadata — apply to tracks already present, stash the rest
+  let applied = 0, waiting = 0;
+  pendingMeta = {};
+  for (const rec of (data.tracks || [])) {
+    const key = metaKeyFor(rec.fileName || rec.title);
+    const match = library.find(t => metaKeyFor(t) === key);
+    if (match) {
+      applyMetaRecord(match, rec);
+      await saveTrackMetaToStorage(match);
+      applied++;
+    } else {
+      pendingMeta[key] = rec;
+      waiting++;
+    }
+  }
+  await savePendingMeta();
+
+  // 3. playlists — rebuild from filenames where the tracks exist
+  if (data.playlists) {
+    for (const p of data.playlists) {
+      const ids = p.files
+        .map(fn => library.find(t => metaKeyFor(t) === metaKeyFor(fn)))
+        .filter(Boolean)
+        .map(t => t.id);
+      const existing = playlists.find(x => x.name === p.name);
+      if (existing) {
+        ids.forEach(id => { if (!existing.trackIds.includes(id)) existing.trackIds.push(id); });
+      } else {
+        playlists.push({ id: generateId(), name: p.name, trackIds: ids });
+      }
+    }
+    await savePlaylists();
+  }
+
+  render();
+  storageNote = 'Restored: ' + applied + ' tagged now' +
+    (waiting ? ', ' + waiting + ' waiting for you to re-import those files.' : '.');
+  updateStoragePanel();
+}
+
+function applyMetaRecord(track, rec){
+  track.title = rec.title || track.title;
+  track.artist = rec.artist || track.artist;
+  track.album = rec.album || track.album;
+  track.albumArtist = rec.albumArtist || '';
+  track.composer = rec.composer || '';
+  track.genre = rec.genre || '';
+  track.year = rec.year || '';
+  track.trackNo = rec.trackNo || '';
+  track.comments = rec.comments || '';
+  if (rec.cover) track.cover = rec.cover;
+}
+
+// Called after a file is imported: if a backup was waiting for it, apply it
+async function applyPendingMetaTo(track){
+  const key = metaKeyFor(track);
+  const rec = pendingMeta[key];
+  if (!rec) return false;
+  applyMetaRecord(track, rec);
+  delete pendingMeta[key];
+  await savePendingMeta();
+  return true;
+}
+
+async function savePendingMeta(){
+  try {
+    const json = JSON.stringify(pendingMeta);
+    if (backend === 'idb' && idb) await idbPut({ id: '__pendingmeta', data: json });
+    else if (backend === 'host') await setWithRetry('pendingmeta', json);
+  } catch (e) { /* non-critical */ }
+}
+
+async function loadPendingMeta(){
+  try {
+    if (backend === 'idb' && idb) {
+      const all = await idbGetAll();
+      const rec = all.find(r => r.id === '__pendingmeta');
+      if (rec && rec.data) pendingMeta = JSON.parse(rec.data);
+    } else if (backend === 'host') {
+      const rec = await window.storage.get('pendingmeta', false);
+      if (rec && rec.value) pendingMeta = JSON.parse(rec.value);
+    }
+  } catch (e) { pendingMeta = {}; }
+}
 
 // ---- iTunes-style metadata editor ----
 let editingIndex = -1;
@@ -1441,9 +2517,20 @@ let pendingCover = null; // null = unchanged, '' = removed, string = new data UR
 
 function openInfoEditor(i){
   if (i < 0 || i >= library.length) return;
+  batchMode = false;
   editingIndex = i;
   pendingCover = null;
   const t = library[i];
+
+  document.getElementById('tl-title-text').textContent = 'Item Information';
+  document.getElementById('btn-delete-track').style.display = '';
+  document.getElementById('edit-title').disabled = false;
+  document.getElementById('edit-track').disabled = false;
+  document.getElementById('playlist-row').style.display = '';
+  const sel = document.getElementById('edit-playlist');
+  sel.innerHTML = '<option value="">— Add to playlist —</option>' +
+    playlists.map(p => '<option value="' + p.id + '">' + escapeHtml(p.name) + '</option>').join('');
+  sel.value = '';
 
   document.getElementById('edit-title').value = t.title || '';
   document.getElementById('edit-artist').value = t.artist === 'Unknown Artist' ? '' : (t.artist || '');
@@ -1488,6 +2575,9 @@ function closeInfoEditor(){
   document.getElementById('info-overlay').classList.remove('open');
   editingIndex = -1;
   pendingCover = null;
+  batchMode = false;
+  document.getElementById('edit-title').disabled = false;
+  document.getElementById('edit-track').disabled = false;
 }
 
 document.querySelector('.itunes-tab').onclick = () => switchTab('info');
@@ -1506,6 +2596,7 @@ document.getElementById('art-input').onchange = (e) => {
 };
 
 document.getElementById('btn-info-ok').onclick = async () => {
+  if (batchMode) { await applyBatchEdit(); return; }
   if (editingIndex < 0) return;
   const t = library[editingIndex];
   const val = id => document.getElementById(id).value.trim();
@@ -1522,10 +2613,12 @@ document.getElementById('btn-info-ok').onclick = async () => {
   if (pendingCover !== null) t.cover = pendingCover || null;
 
   const idx = editingIndex;
+  const plId = document.getElementById('edit-playlist').value;
   closeInfoEditor();
   render();
   if (currentIndex === idx) updateNowPlaying();
   await saveTrackMetaToStorage(t);
+  if (plId) await addTrackToPlaylist(idx, plId);
 };
 
 // Rewrites only the metadata record — the audio chunks are untouched
@@ -1878,6 +2971,37 @@ async function clearLibrary(){
   }
 }
 
+document.getElementById('dark-toggle').onchange = (e) => {
+  darkUI = e.target.checked;
+  applyDarkUI();
+  savePrefs();
+};
+document.getElementById('btn-quiz-start').onclick = btnClick(() => quizNextRound());
+
+document.getElementById('btn-shuffle-songs').onclick = btnClick(() => shuffleAndPlay());
+
+// Tap the artwork on Now Playing to view it full-screen
+document.getElementById('np-cover').onclick = () => {
+  const t = library[currentIndex];
+  if (!t) return;
+  playClick();
+  document.getElementById('cover-full-img').src = t.cover || placeholderCover();
+  document.getElementById('cover-full').classList.add('shown');
+};
+document.getElementById('cover-full').onclick = () => {
+  playClick();
+  document.getElementById('cover-full').classList.remove('shown');
+};
+
+
+document.getElementById('btn-backup').onclick = btnClick(() => exportBackup());
+document.getElementById('btn-restore').onclick = btnClick(() => document.getElementById('restore-input').click());
+document.getElementById('restore-input').onchange = (e) => {
+  const f = e.target.files[0];
+  if (f) importBackup(f);
+  e.target.value = '';
+};
+
 document.getElementById('btn-test-storage').onclick = btnClick(() => {
   storageAvailable = null;
   updateStoragePanel();
@@ -1891,8 +3015,9 @@ document.getElementById('btn-clear-library').onclick = btnClick(() => {
 // ---- Init ----
 updateStatusPlayIcon();
 updateStatusPlayIcon();
+updateShuffleRepeatUI();
 showView('menu');
-loadLibraryFromStorage();
+loadLibraryFromStorage().then(loadPlaylists).then(loadPrefs).then(loadPendingMeta);
 </script>
 
 </body>
