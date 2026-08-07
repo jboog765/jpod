@@ -659,8 +659,22 @@
     position:relative;
     box-shadow:0 6px 14px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
   }
+  /* Each label carries an invisible pad so the whole quadrant is tappable,
+     the way the physical wheel's buttons were. */
+  .wheel-label::before{
+    content:'';
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:34%;
+    height:34%;
+    min-width:74px;
+    min-height:74px;
+    border-radius:50%;
+  }
   .wheel-label{
     position:absolute;
+    z-index:3;
     font-size:12px;
     font-weight:700;
     color:var(--glyph,#8a8a8e);
@@ -668,10 +682,10 @@
     user-select:none;
     cursor:pointer;
   }
-  .lbl-menu{top:18px;left:50%;transform:translateX(-50%);}
-  .lbl-fwd{right:18px;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
-  .lbl-back{left:18px;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
-  .lbl-play{bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;}
+  .lbl-menu{top:10%;left:50%;transform:translateX(-50%);}
+  .lbl-fwd{right:9%;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
+  .lbl-back{left:9%;top:50%;transform:translateY(-50%);font-size:15px;display:flex;align-items:center;gap:2px;}
+  .lbl-play{bottom:10%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;}
   .lbl-fwd .bar, .lbl-back .bar{
     width:2px;height:13px;background:var(--glyph,#8a8a8e);display:inline-block;
   }
@@ -1209,8 +1223,44 @@ document.getElementById('btn-play').onclick = btnClick(() => {
     togglePlay();
   }
 });
-document.getElementById('btn-next').onclick = btnClick(() => { const n = nextIndex(false); if (n >= 0) playIndex(n); });
-document.getElementById('btn-prev').onclick = btnClick(() => { const n = prevIndex(); if (n >= 0) playIndex(n); });
+// Tap skips a track; press and hold scans through the current one, like the real wheel
+function wireSkipButton(id, onTap, scanDir){
+  const el = document.getElementById(id);
+  let holdTimer = null, scanTimer = null, held = false;
+
+  const startHold = (e) => {
+    held = false;
+    holdTimer = setTimeout(() => {
+      held = true;
+      playClick();
+      scanTimer = setInterval(() => seekBy(scanDir * 3), 150);
+    }, 500);
+    if (e.cancelable) e.preventDefault();
+  };
+  const endHold = () => {
+    clearTimeout(holdTimer);
+    clearInterval(scanTimer);
+    scanTimer = null;
+    if (!held) { playClick(); onTap(); }
+    held = false;
+  };
+  const cancelHold = () => {
+    clearTimeout(holdTimer);
+    clearInterval(scanTimer);
+    scanTimer = null;
+    held = false;
+  };
+
+  el.addEventListener('touchstart', startHold, { passive: false });
+  el.addEventListener('touchend', endHold);
+  el.addEventListener('touchcancel', cancelHold);
+  el.addEventListener('mousedown', startHold);
+  el.addEventListener('mouseup', endHold);
+  el.addEventListener('mouseleave', cancelHold);
+}
+
+wireSkipButton('btn-next', () => { const n = nextIndex(false); if (n >= 0) playIndex(n); }, 1);
+wireSkipButton('btn-prev', () => { const n = prevIndex(); if (n >= 0) playIndex(n); }, -1);
 document.getElementById('btn-center').onclick = btnClick(() => {
   if (currentView === 'brick') { brickLaunch(); return; }
   if (currentView === 'extras') { EXTRAS_ITEMS[extrasSelected].action(); return; }
@@ -1262,6 +1312,8 @@ function angleFromEvent(e){
 let scrubbing = false;
 let scrubTarget = 0;
 let lastDetentAt = 0;
+let totalTravel = 0;
+const DRAG_THRESHOLD = 12; // degrees of travel before a drag counts as a scrub
 
 function wheelStart(e){
   // ignore if the press started on a button/label (those have their own handlers)
@@ -1270,10 +1322,8 @@ function wheelStart(e){
   lastAngle = angleFromEvent(e);
   accumDeg = 0;
   lastDetentAt = 0;
-  if (currentView === 'now' && currentDuration()) {
-    scrubbing = true;
-    scrubTarget = currentPosition();
-  }
+  totalTravel = 0;      // scrubbing only begins after real movement
+  scrubbing = false;
   e.preventDefault();
 }
 
@@ -1298,6 +1348,15 @@ function wheelMove(e){
   if (delta < -180) delta += 360;
   lastAngle = angle;
   accumDeg += delta;
+  totalTravel += Math.abs(delta);
+
+  // A stray wobble shouldn't scrub — require a deliberate turn first
+  if (!scrubbing && currentView === 'now' && currentDuration() && totalTravel > DRAG_THRESHOLD) {
+    scrubbing = true;
+    scrubTarget = currentPosition();
+  }
+
+  if (totalTravel < DRAG_THRESHOLD) { e.preventDefault(); return; }
 
   while (Math.abs(accumDeg) >= DETENT_DEG) {
     const dir = accumDeg > 0 ? 1 : -1;
